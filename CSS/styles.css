@@ -1,0 +1,120 @@
+body{
+    background: #000900;
+    /* Prevents the highlighting from accidental selection of text */
+    user-select: none;
+    margin: 0;
+    padding: 0;
+}
+#wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#gamecontainer {
+    /* Set game container width, height, and background */
+    width: 100%;
+    height: 100%;
+    background: url("../Assets/sq18_center.png");
+}
+.gamelayer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: none;
+}
+.clickable {
+    cursor: pointer;
+}
+
+/* Game Start Screen */
+/* Major Section */
+#startscreen {
+    text-align: center;
+}
+#startscreen img {
+    position: relative;
+    top: 45%;
+    margin: 10px;
+    cursor: pointer;
+}
+
+/* Game 'Game' Screen */
+/* Major Section */
+#gamescreen {
+    text-align: center;
+}
+
+/* Central Progress Bar */
+#spirit-slag-bar {
+    width: 60%;
+    background-color: #390061;
+    border: 1px solid grey;
+    position: relative;
+    top:100%;
+    left: 20%;
+}
+#spirit-slag-prog {
+    width:0%;
+    height:30px;
+    background-color: #702ba5;
+}
+.resourceCount {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: medium;
+    color: white;
+}
+/* Overall Grid Display */
+.main-display { grid-area: display; }
+.system-display { grid-area: systemD; overflow-y: auto; }
+.inventory-display { grid-area: inventory; margin-top:auto; margin-bottom: 0%;  overflow-y: auto; }
+.menu-display { grid-area:  menuD; }
+.inspect-display { grid-area: inspect; }
+.grid-container {
+    display: grid;
+    grid-template-columns: 20% auto 30%;
+    padding:0;
+    grid-template-areas: 
+    'systemD display menuD'
+    'systemD display inventory'
+    'systemD inspect inventory';
+    gap: 10px;
+    height:100%;
+}
+/* Table Data */
+.royalRoadTable {
+    border-collapse: collapse;
+    background-color: rgba(52, 73, 94, 1);
+    border: 2px solid rgba(194, 224, 244, 1);
+    margin-top: 5px;
+    margin-left: 5px;
+    font-weight: bold;
+    color: rgba(194, 224, 244, 1);
+    font-family: Open Sans,sans-serif;
+    width: 90%;
+    text-align: left;
+}
+.royalRoadTR > td {
+    border: 1px solid rgba(194, 224, 244, 1);
+    padding: 5px;
+}
+.upgradeModule {
+    display: none;
+}
+
+.inventory {
+    position:relative;
+    margin-right: 0%;
+    margin-left: auto;
+}
+
+/* Game Settings Screen */
+/* Major Section */
+#settingsscreen {
+    text-align: center;
+}
+#settingsscreen img {
+    position: relative;
+    top:45%;
+    margin: 10px;
+    cursor: pointer;
+}

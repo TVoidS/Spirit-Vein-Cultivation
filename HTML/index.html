@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Spirit Vein Simulator Game</title>
+        <script src="../Javascript/redirectionLogic.js" type="text/javascript"></script>
+        <script src="../Javascript/gameLogic.js" type="text/javascript"></script>
+        <script src="../Javascript/settingsLogic.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="../CSS/styles.css" type="text/css" media="screen">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="gamecontainer">
+                <div id="startscreen" class="gamelayer">
+                    <img src="../Assets/sq19_up.png" alt="New Game" onclick="menu.showGameScreen();game.init('new')"><br>
+                    <img src="../Assets/sq20_up.png" alt="Load Game" onclick="document.getElementById('fileInput').click()"><br>
+                    <input id="fileInput" type="file" accept=".json" style="display:none;" oninput="menu.loadCharacter()">
+                </div>
+
+                <div id="gamescreen" class="gamelayer">
+
+                    <div class="grid-container">
+                        <div class="main-display">
+                            <div id="spirit-slag-bar">
+                                <div id="spirit-slag-prog"></div>
+                            </div>
+                        </div>
+                        <div class="system-display">
+                            <table class="royalRoadTable">
+                                <tbody>
+                                    <tr class="royalRoadTR">
+                                        <td style="width:60%">Modules</td>
+                                        <td style="width:35%"></td>
+                                    </tr>
+                                    <tr class="royalRoadTR">
+                                        <td>System Points</td>
+                                        <td id="systemPoints">*error*</td>
+                                    </tr>
+                                    <tr class="royalRoadTR">
+                                        <td>Upgrade Module</td>
+                                        <td id="upgradeExpand" onclick="game.toggleUpgrade()">--Open--</td>
+                                    </tr>
+                                    <tr class="royalRoadTR upgradeModule">
+                                        <td>Stats</td>
+                                        <td>Cost</td>
+                                    </tr>
+                                    <tr class="royalRoadTR upgradeModule">
+                                        <td><div id="qiCapUpgradeModule">--</div></td>
+                                        <td><div id="qiCapCost">--</div></td>
+                                    </tr>
+                                    <tr class="royalRoadTR upgradeModule">
+                                        <td><div id="qiPurityUpgradeModule">--</div></td>
+                                        <td><div id="qiPurityCost">--</div></td>
+                                    </tr>
+                                    <tr class="royalRoadTR upgradeModule">
+                                        <td><div id="qiRegenUpgradeModule">--</div></td>
+                                        <td><div id="qiRegenCost">--</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="menu-display"><img src="../Assets/sheet20.png" class="clickable" onclick="character.export()"></div>
+                        <div class="inspect-display">Four</div>
+                        <div class="inventory-display">
+                            <table class="inventory">
+                                <tr>
+                                    <th>Convert</th>
+                                    <th>Generate</th>
+                                    <th>Stored</th>
+                                    <th></th>
+                                </tr>
+                                <tr style="display:none;">
+                                    <td>Convert</td>
+                                    <td>Generate</td>
+                                    <td class="resourceCount">*error*</td>
+                                    <td><img src="../Assets/material_02.png"></td>
+                                </tr>
+                                <tr>
+                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(1)"></td>
+                                    <td><img src="../Assets/sq19_up.png" onclick="game.startProg1(1)"></td>
+                                    <td id="sSlCount" class="resourceCount">*error*</td>
+                                    <td><img src="../Assets/material_01.png"></td>
+                                </tr>
+                                <tr>
+                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(0)"></td>
+                                    <td><img src="../Assets/sq19_up.png" onclick="game.startProg1(0)"></td>
+                                    <td id="iSSlCount" class="resourceCount">*error*</td>
+                                    <td><img src="../Assets/material_16.png"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settingsscreen" class="gamelayer">
+                    <img src="../Assets/sheet20.png" alt="Test Results" onclick="menu.showStartScreen()"><br>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
