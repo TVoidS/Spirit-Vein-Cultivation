@@ -1,0 +1,11 @@
+# Don't track these folders
+Assets/
+# ExampleFolder/
+
+# Other Examples #
+####################
+# Compiled Sources
+# *.com
+# *.class
+# *.dll
+# *.exe
