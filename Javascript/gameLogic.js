@@ -24,17 +24,6 @@ const game = {
         game.regen_bar = document.getElementById("qi-regen-prog");
         game.regen_prog = 0;
 
-
-        // Create the Character object
-        if(type == 'new') {
-            // if the init was called via the "New Game" button
-            character.init('new');
-        } else {
-            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
-            // load provided json (type variable)
-            character.init(type);
-        }
-
         // retrieve the inventory counts
         game.iSSlDisplay = document.getElementById("iSSlCount");
         game.sSlDisplay = document.getElementById("sSlCount");
@@ -56,7 +45,16 @@ const game = {
         game.regenD = document.getElementById("qiRegenUpgradeModule");
         game.regenCost = document.getElementById("qiRegenCost");
 
-        
+        // Create the Character object
+        if(type == 'new') {
+            // if the init was called via the "New Game" button
+            character.init('new');
+        } else {
+            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
+            // load provided json (type variable)
+            character.init(type);
+        }
+
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
     },
@@ -69,12 +67,7 @@ const game = {
         
         // Only runs if there is an active resource production going on!
         if(game.res_bar) {
-
-            // Start the updateResourceBar()
             game.updateResourceBar();
-
-            // TODO: push all of this off into another function!  (probably a new object full of just resource related calculations)
-            
         }
 
         // Only runs if the Character Inventory has been updated
@@ -98,6 +91,7 @@ const game = {
             game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
 
             // Update the gain rates for the resources!
+            // TODO: make this only update on Purity updates!
             rates.calculateAllReturns();
             
             // Mark the Stats displays as up-to-date!
@@ -426,5 +420,109 @@ const rates = {
     conversion: {
         0: .01,
         1: 1
+    }
+}
+
+// These costs are likely to be off by at *least* a little bit, and likely to be off by a wide margin the further into the story we get!
+const upgrades = {
+    skills: {
+        qiConversion: { // Not 100% on this one
+            1: 1,
+            2: 1,
+            3: 2,
+            4: 3,
+            5: 5,
+            6: 8,
+            7: 13,
+            8: 21,
+            9: 34
+        },
+        spiritAura: { // TODO: Figure out why I should implement this skill
+            1: 1
+        },
+        spiritSense: { // TODO: Figure out why I should implement this skill
+            1: 1
+        }
+    },
+    stats: {
+        qiCap: { // The story kinda skips over most of these values, as they are pretty much all the same, so I guessed as to the rate they increase.
+            10: 1,
+            11: 1,
+            12: 1,
+            13: 1,
+            14: 1,
+            15: 1,
+            16: 1,
+            17: 1,
+            18: 1,
+            19: 2,
+            20: 2,
+            21: 2,
+            22: 2,
+            23: 2,
+            24: 2,
+            25: 2,
+            26: 2,
+            27: 2,
+            28: 2,
+            29: 3,
+            30: 3,
+            31: 3,
+            32: 3,
+            33: 3,
+            34: 3,
+            35: 3,
+            36: 3,
+            37: 3,
+            38: 3,
+            39: 5,
+            40: 5,
+            41: 5,
+            42: 5,
+            43: 5,
+            44: 5,
+            45: 5,
+            46: 5,
+            47: 5,
+            48: 5,
+            49: 8,
+            50: 8,
+            51: 8,
+            52: 8,
+            53: 8,
+            54: 8,
+            55: 8,
+            56: 8,
+            57: 8,
+            58: 8,
+            59: 13,
+            60: 13,
+            61: 13,
+        },
+        purity: {
+            0: 1,
+            1: 2,
+            2: 3,
+            3: 5,
+            4: 8,
+            5: 13,
+            6: 21,
+            7: 34,
+            8: 50,
+            9: 100,
+            10: 200 // Might be 100 again? Not sure
+        },
+        regen: { // Not sure about most of these costs, but guessed based off of the other stats
+            1: 10,
+            2: 20,
+            3: 30,
+            4: 50,
+            5: 80,
+            6: 130,
+            7: 210,
+            8: 340,
+            9: 500, 
+            10: 1000
+        }
     }
 }
