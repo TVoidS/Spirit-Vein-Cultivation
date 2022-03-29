@@ -47,6 +47,10 @@ const game = {
         game.regenD = document.getElementById("qiRegenUpgradeModule");
         game.regenCost = document.getElementById("qiRegenCost");
 
+        // Skills Upgrades
+        game.qiConversion = document.getElementById("qiConversionUpgradeModule");
+        game.qiConversionCost = document.getElementById("qiConversionCost");
+
         // Create the Character object
         if(type == 'new') {
             // if the init was called via the "New Game" button
@@ -103,6 +107,12 @@ const game = {
             
             // Mark the Stats displays as up-to-date!
             character.updatedStats = false;
+        }
+
+        if (character.updatedSkills) {
+
+            // We've updated the displays, so change the thing!
+            character.updatedSkills = false;
         }
     },
 
@@ -225,6 +235,7 @@ const game = {
             } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
                 character.sheet.stats.currQi = character.sheet.stats.qiCap;
+                character.updatedStats = true;
             }
             // Reset the progress of the bar!
             game.regen_prog = 0;
@@ -238,7 +249,6 @@ const game = {
 
         console.log("Attempted to upgrade: " + target);
         // check if we have the SP for the upgrade
-        console.log("upgradecost: " + upgrades.stats[target][character.sheet.stats[target]]);
         if (character.sheet.inventory.sp >= upgrades.stats[target][character.sheet.stats[target]]) {
             // We have enough! Yay!
 
@@ -256,6 +266,10 @@ const game = {
             character.updatedStats = true;
             character.updatedInv = true;
         }
+    },
+
+    upgradeSkill: function(target) {
+        if(character.sheet.inventor.sp >= upgrades.stats[target][character.sheet.stats[target]]);
     }
 }
 
