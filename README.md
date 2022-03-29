@@ -1,5 +1,11 @@
 # Spirit-Vein-Cultivation
+## Inspiration:
 This is a rendition of the "game" the MC plays in the story "A Spirit Vein's Guide to Immortality" by TrueDawn on Royal Road.  Found Here: https://www.royalroad.com/fiction/49668/a-spirit-veins-guide-to-immortality
+
+## Setup/Install:
+To setup this game, you'll likely have to find assets that you like to represent all the buttons.  Later I might make custom buttons to avoid this restriction, but GameDev market resources are to be used in projects, but not in a way that is easily isolated (hide the images in some way really)
+Otherwise, just download the entire project and run the index.html
+It should work, but the buttons won't appear
 
 ## TODO:
 ### Planned for this Branch:
