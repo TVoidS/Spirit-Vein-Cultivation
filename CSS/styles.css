@@ -50,13 +50,27 @@ body{
     background-color: #390061;
     border: 1px solid grey;
     position: relative;
-    top:100%;
+    top:90%;
     left: 20%;
 }
 #spirit-slag-prog {
     width:0%;
     height:30px;
     background-color: #702ba5;
+}
+/* Qi Regen Bar */
+#qi-regen-bar {
+    width: 60%;
+    background-color: #00459e;
+    border: 1px solid grey;
+    position: relative;
+    top: 92%;
+    left: 20%;
+}
+#qi-regen-prog {
+    width:0%;
+    height:10px;
+    background-color: #00aeff;
 }
 .resourceCount {
     font-family: 'Courier New', Courier, monospace;

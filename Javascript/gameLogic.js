@@ -10,6 +10,8 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
+        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        // e.g. The default time it takes to process the spirit slag!
 
         // Initial values for the primary progress bar.
         game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
@@ -17,6 +19,11 @@ const game = {
         game.prog1_max = 1 * game.secondConvert;
         game.prog1_curr = 0;
         game.prog1_mat_tier = 0;
+
+        // Secondary progress bar!  This is for the Qi Regen Timer!
+        game.regen_bar = document.getElementById("qi-regen-prog");
+        game.regen_prog = 0;
+
 
         // Create the Character object
         if(type == 'new') {
@@ -56,6 +63,9 @@ const game = {
 
     // Primary GameLoop function!  This will repeate forever and eever and eeeeeeverrrr
     gameLogic: function() {
+
+        // Process everything related to Qi-Regen!
+        game.updateQiRegenBar();
         
         // Only runs if there is an active resource production going on!
         if(game.prog1) {
@@ -191,6 +201,38 @@ const game = {
             // Update the recorded state!
             game.upExpanded = false;
         }
+    },
+
+    // Handle everything related to Qi Regen, except updating the stats display when done!
+    updateQiRegenBar: function() {
+
+        if ( game.regen_prog < rates.regenTime ) {
+            // If there is more to regen!0
+            if(document.hidden) {
+                // If the tab isn't active!
+                // We need to make more progress per tick if the tab isn't active!
+                game.regen_prog += game.secondConvert;
+            } else {
+                // If the tab IS active, just increment!
+                game.regen_prog++;
+            }
+        } else {
+            // If we are full up!
+            // And aren't full of Qi...
+            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.cap){
+                // Increase our Qi by the amount we regen!
+                character.sheet.stats.currQi += character.sheet.stats.regen;
+                // We've updated something for the stats display!
+                character.updatedStats = true;
+            } else if (character.sheet.stats.currQi < character.sheet.stats.cap) {
+                // if we aren't full, but only by a little, set us to cap!
+                character.sheet.stats.currQi = character.sheet.stats.cap;
+            }
+            // Reset the progress of the bar!
+            game.regen_prog = 0;
+        }
+        // Regardless of whether the tab is active or not, we've already factored that in!  Just update the style!
+        game.regen_bar.style.width = (( game.regen_prog / rates.regenTime )*100)+"%";
     }
 }
 
@@ -300,6 +342,12 @@ const rates = {
 
         // Create the rates on game start/load
         rates.calculateAllReturns();
+
+        // This is the time it takes in game-ticks to get a point of Qi back!
+        rates.regenTime = game.baseTime*game.secondConvert;
+
+        // This is for the time it takes each of the resources to generate!
+        rates.calculateTime();
     },
 
     // Calculates the return value that would be generated for a given mat_tier.
@@ -346,7 +394,11 @@ const rates = {
             1: rates.calculateReturn(1)
         }
     },
-    
+
+    calculateTime: function() {
+        // Something Something!
+    },
+
     // Conversion rates from Mass to System Points for each material tier.
     conversion: {
         0: .01,
