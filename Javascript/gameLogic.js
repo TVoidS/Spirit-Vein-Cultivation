@@ -100,10 +100,6 @@ const game = {
 
             game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
             game.regenCost.innerHTML = upgrades.stats.regen[character.sheet.stats.regen];
-
-            // Update the gain rates for the resources!
-            // TODO: make this only update on Purity updates!
-            rates.calculateAllReturns();
             
             // Mark the Stats displays as up-to-date!
             character.updatedStats = false;
@@ -134,7 +130,6 @@ const game = {
 
             // Decrement Qi from the character, as that is the cost of generating resources
             character.sheet.stats.currQi--;
-            // TODO: make this update part of the function to decrement Qi
             character.updatedStats = true;
 
             // Tell the system what tier is being made!
@@ -161,17 +156,11 @@ const game = {
 
             // Turn off further filling
             game.res_bar = false;
-
             // Set the bar's progress to 0
             game.res_bar_prog = 0;
 
             // Add more resources to the character's inventory 
-            // TODO: Offload any character sheet updates into the character object, so that the flag can be updated appropriately!
             character.sheet.inventory[game.mat_tier] += rates.gain[game.mat_tier];
-
-            // Debug log for my sanity, likely to be removed or commented out!
-            console.log("Spirit Slag: " + character.sheet.inventory[game.mat_tier]);
-
             // Tell the game to update the display for the Inventory on the next opportunity!
             character.updatedInv = true;
         }
@@ -257,6 +246,11 @@ const game = {
             character.sheet.inventory.sp -= upgrades.stats[target][character.sheet.stats[target]];
             // Increment the stat!
             character.sheet.stats[target]++;
+
+            if(target == 'purity') {
+                // Update the gain rates for the resources!
+                rates.calculateAllReturns();
+            }
 
             // Tell the GameLogic to render the changes!
             character.updatedStats = true;
@@ -417,7 +411,6 @@ const rates = {
 
     // Sets the time it takes for each progress bar action!
     calculateTimes: function() {
-        // TODO: make this create the rates.time object!
         rates.time = {
             convert: {
                 0: rates.calculateConversionTime(0),
