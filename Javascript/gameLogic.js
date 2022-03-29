@@ -10,15 +10,15 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
-        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        game.baseTime = 6; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
         // Initial values for the primary progress bar.
         game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
-        game.prog1 = false;
-        game.prog1_max = 1 * game.secondConvert;
-        game.prog1_curr = 0;
-        game.prog1_mat_tier = 0;
+        game.res_bar = false;
+        game.res_bar_max = 1 * game.secondConvert;
+        game.res_bar_prog = 0;
+        game.mat_tier = 0;
 
         // Secondary progress bar!  This is for the Qi Regen Timer!
         game.regen_bar = document.getElementById("qi-regen-prog");
@@ -68,41 +68,13 @@ const game = {
         game.updateQiRegenBar();
         
         // Only runs if there is an active resource production going on!
-        if(game.prog1) {
+        if(game.res_bar) {
+
+            // Start the updateResourceBar()
+            game.updateResourceBar();
 
             // TODO: push all of this off into another function!  (probably a new object full of just resource related calculations)
-            if(game.prog1_curr < game.prog1_max) {
-
-                // If the bar isn't full, or over-full, 
-                if(document.hidden) {
-                    // and if the game isn't the active tab, run the modified progression rates
-                    game.updateProg1Hidden();
-                } else {
-                    // but if it is the active tab, use the normal fill-rate.
-                    game.updateProg1();
-                }
-            } else {
-                // If the bar IS full or over-full,
-
-                // Turn off further filling
-                game.prog1 = false;
-
-                // Set the bar's progress to 0
-                game.prog1_curr = 0;
-
-                // Empty the displayed bar
-                game.spiritSlagProgBar.style.width = "0%"
-
-                // Add more resources to the character's inventory 
-                // TODO: Offload any character sheet updates into the character object, so that the flag can be updated appropriately!
-                character.sheet.inventory[game.prog1_mat_tier] += rates.gain[game.prog1_mat_tier];
-
-                // Debug log for my sanity, likely to be removed or commented out!
-                console.log("Spirit Slag: " + character.sheet.inventory[game.prog1_mat_tier]);
-
-                // Tell the game to update the display for the Inventory on the next opportunity!
-                character.updatedInv = true;
-            }
+            
         }
 
         // Only runs if the Character Inventory has been updated
@@ -145,30 +117,62 @@ const game = {
         game.gameLoop = setInterval(game.gameLogic, 1000);
     },
 
-    /** TODO: NEEDS CLEANING */
-    startProg1: function(tier) {
-        if(character.sheet.stats.currQi > 0 && !game.prog1) {
+    // Triggered when a conversion button is pressed!
+    // Processes all the information for the system to start making stuff!
+    startResBar: function(tier) {
+
+        // TODO: Make this check for if the material is even unlocked!
+        if( ( character.sheet.stats.currQi > 0 ) && !game.res_bar) {
+
             // Tell the GameLoop that we need to update the progress bar now
-            game.prog1 = true;
+            game.res_bar = true;
+
             // Decrement Qi from the character, as that is the cost of generating resources
-            // TODO: make this dependent on the tier being created, and if we can even make that tier
             character.sheet.stats.currQi--;
-            // TODO: Make a function that updates this, and the time it will take BEFORE triggering the game.prog1 flag!
-            game.prog1_mat_tier = tier;
             // TODO: make this update part of the function to decrement Qi
             character.updatedStats = true;
+
+            // Tell the system what tier is being made!
+            game.mat_tier = tier;
         }
     },
-    updateProg1: function() {
-        // normal display rate.
-        game.prog1_curr++;
-        game.spiritSlagProgBar.style.width = 100*(game.prog1_curr/game.prog1_max) + "%";
+
+    // Replaces the updateres_bar() and updateres_barHidden() functions
+    // Handles the progress of running materials!
+    updateResourceBar: function() {
+        if(game.res_bar_prog < rates.time.convert[game.mat_tier]) {
+
+            // If the bar isn't full, or over-full, 
+            if(document.hidden) {
+                // If the tab isn't active, use enhanced fill-rate
+                game.res_bar_prog += game.secondConvert;
+            } else {
+                // but if it is the active tab, use the normal fill-rate.
+                game.res_bar_prog++;
+            }
+            
+        } else {
+            // If the bar IS full or over-full,
+
+            // Turn off further filling
+            game.res_bar = false;
+
+            // Set the bar's progress to 0
+            game.res_bar_prog = 0;
+
+            // Add more resources to the character's inventory 
+            // TODO: Offload any character sheet updates into the character object, so that the flag can be updated appropriately!
+            character.sheet.inventory[game.mat_tier] += rates.gain[game.mat_tier];
+
+            // Debug log for my sanity, likely to be removed or commented out!
+            console.log("Spirit Slag: " + character.sheet.inventory[game.mat_tier]);
+
+            // Tell the game to update the display for the Inventory on the next opportunity!
+            character.updatedInv = true;
+        }
+        game.spiritSlagProgBar.style.width = ((game.res_bar_prog/rates.time.convert[game.mat_tier])*100) + "%";
     },
-    updateProg1Hidden: function() {
-        // This is for when the display is hidden, and we need to alter the progression rate to 1 tick per second.
-        game.prog1_curr += game.secondConvert;
-        game.spiritSlagProgBar.style.width = 100*(game.prog1_curr/game.prog1_max) + "%";
-    },
+
     // Toggles the System Menu's Upgrade Module
     toggleUpgrade: function() {
 
@@ -206,7 +210,7 @@ const game = {
     // Handle everything related to Qi Regen, except updating the stats display when done!
     updateQiRegenBar: function() {
 
-        if ( game.regen_prog < rates.regenTime ) {
+        if ( game.regen_prog < rates.time.regen ) {
             // If there is more to regen!0
             if(document.hidden) {
                 // If the tab isn't active!
@@ -232,7 +236,7 @@ const game = {
             game.regen_prog = 0;
         }
         // Regardless of whether the tab is active or not, we've already factored that in!  Just update the style!
-        game.regen_bar.style.width = (( game.regen_prog / rates.regenTime )*100)+"%";
+        game.regen_bar.style.width = (( game.regen_prog / rates.time.regen )*100)+"%";
     }
 }
 
@@ -274,12 +278,6 @@ const character = {
 
             // TODO: SAVE VERIFICATION AND UPDATING!
         }
-
-        // create the timeTicks object
-        // TODO: Make this dependent on the Skills of the character!
-        character.timeTicks = {
-            iSSTick:  60 * game.secondConvert
-        };
 
         //Make sure to start up the rates object, or you'd never get any Spirit Slag in the first place!
         rates.init();
@@ -343,11 +341,8 @@ const rates = {
         // Create the rates on game start/load
         rates.calculateAllReturns();
 
-        // This is the time it takes in game-ticks to get a point of Qi back!
-        rates.regenTime = game.baseTime*game.secondConvert;
-
         // This is for the time it takes each of the resources to generate!
-        rates.calculateTime();
+        rates.calculateTimes();
     },
 
     // Calculates the return value that would be generated for a given mat_tier.
@@ -395,8 +390,36 @@ const rates = {
         }
     },
 
-    calculateTime: function() {
-        // Something Something!
+    // Sets the time it takes for each progress bar action!
+    calculateTimes: function() {
+        // TODO: make this create the rates.time object!
+        rates.time = {
+            convert: {
+                0: rates.calculateConversionTime(0),
+                1: rates.calculateConversionTime(1)
+            },
+            regen: game.baseTime*game.secondConvert,
+        };
+    },
+
+    // Calculates how long it takes for the character to convert Qi to a given tier of resource
+    calculateConversionTime: function(tier) {
+        // Get the purity grade and tier from the character sheet!
+        let purity_grade = character.sheet.stats.purity%10;
+        let purity_tier = character.sheet.stats.purity - purity_grade;
+
+        if ( purity_tier < tier ) {
+            // we don't have enough purity!  Cannot accelerate!
+            return game.baseTime*game.secondConvert;
+        } else if ( purity_tier == tier ) {
+            // Cut back by 1/12 of the time per grade gained in the correct tier
+            // Should match the story's progression closely
+            return (game.baseTime*game.secondConvert)*((12-purity_grade)/12);
+        } else {
+            // 1/6 = 2/12.  This turns 60 minutes into 10 minutes!
+            // This is the same as is found in the story! yey
+            return (game.baseTime*game.secondConvert)/6;
+        }
     },
 
     // Conversion rates from Mass to System Points for each material tier.
