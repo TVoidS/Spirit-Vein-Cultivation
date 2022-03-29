@@ -114,6 +114,9 @@ body{
 .upgradeModule {
     display: none;
 }
+.sys-upgrade-img {
+    float: left;
+}
 
 .inventory {
     position:relative;

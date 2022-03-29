@@ -10,7 +10,7 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
-        game.baseTime = 6; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
         // Initial values for the primary progress bar.
@@ -40,8 +40,10 @@ const game = {
         // Stats Upgrades
         game.qiCap = document.getElementById("qiCapUpgradeModule");
         game.qiCapCost = document.getElementById("qiCapCost");
+
         game.purityD = document.getElementById("qiPurityUpgradeModule");
         game.purityCost = document.getElementById("qiPurityCost");
+
         game.regenD = document.getElementById("qiRegenUpgradeModule");
         game.regenCost = document.getElementById("qiRegenCost");
 
@@ -86,9 +88,18 @@ const game = {
         if(character.updatedStats) {
 
             // Update the System Display's values for each of the main stats!
-            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.cap;
-            game.purityD.innerHTML = "[Qi Purity] - Tier " + (character.sheet.stats.purity/10) + ", Grade " + (character.sheet.stats.purity%10);
+            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
+            game.qiCapCost.innerHTML = upgrades.stats.qiCap[character.sheet.stats.qiCap];
+
+
+            // Helps with fancy writing
+            let rem = character.sheet.stats.purity%10;
+
+            game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
+            game.purityCost.innerHTML = upgrades.stats.purity[character.sheet.stats.purity];
+
             game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+            game.regenCost.innerHTML = upgrades.stats.regen[character.sheet.stats.regen];
 
             // Update the gain rates for the resources!
             // TODO: make this only update on Purity updates!
@@ -217,20 +228,40 @@ const game = {
         } else {
             // If we are full up!
             // And aren't full of Qi...
-            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.cap){
+            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
                 character.sheet.stats.currQi += character.sheet.stats.regen;
                 // We've updated something for the stats display!
                 character.updatedStats = true;
-            } else if (character.sheet.stats.currQi < character.sheet.stats.cap) {
+            } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
-                character.sheet.stats.currQi = character.sheet.stats.cap;
+                character.sheet.stats.currQi = character.sheet.stats.qiCap;
             }
             // Reset the progress of the bar!
             game.regen_prog = 0;
         }
         // Regardless of whether the tab is active or not, we've already factored that in!  Just update the style!
         game.regen_bar.style.width = (( game.regen_prog / rates.time.regen )*100)+"%";
+    },
+
+    // Handles stat upgrade requests from the System UI
+    upgradeStat: function(target) {
+
+        console.log("Attempted to upgrade: " + target);
+        // check if we have the SP for the upgrade
+        console.log("upgradecost: " + upgrades.stats[target][character.sheet.stats[target]]);
+        if (character.sheet.inventory.sp >= upgrades.stats[target][character.sheet.stats[target]]) {
+            // We have enough! Yay!
+
+            // SPEND IT!!!!
+            character.sheet.inventory.sp -= upgrades.stats[target][character.sheet.stats[target]];
+            // Increment the stat!
+            character.sheet.stats[target]++;
+
+            // Tell the GameLogic to render the changes!
+            character.updatedStats = true;
+            character.updatedInv = true;
+        }
     }
 }
 
@@ -250,7 +281,7 @@ const character = {
                     2: 0
                 },
                 stats: {
-                    cap: 10,
+                    qiCap: 10,
                     currQi: 10,
                     purity: 0,
                     regen: 1
