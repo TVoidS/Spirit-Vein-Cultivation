@@ -3,9 +3,6 @@ const game = {
         // Debug log to verify the order of things, and to make sure it's working
         console.log("game loaded!");
 
-        // Start calculating all the level shenanigans!
-        upgrades.init();
-
         // Required data for almost all of the game logic, used primarily in pre-processing
         // I will try to make this not available for any other calculations, as it is TOO IMPORTANT
         const timeStep = 20;
@@ -310,7 +307,7 @@ const character = {
             // This is to make saving and loading *REALLY* easy for me!
             character.sheet = {
                 inventory: {
-                    sp: 10000000000000,
+                    sp: 0,
                     0: 0,
                     1: 0,
                     2: 0
@@ -496,7 +493,7 @@ const upgrades = {
     skills: {
         qiConversion: { 
             cost: function(num) {
-                fibbo.getMeMyCost(num);
+                return fibbo.getMeMyCost(num);
             }
         },
         spiritAura: { // TODO: Figure out why I should implement this skill
