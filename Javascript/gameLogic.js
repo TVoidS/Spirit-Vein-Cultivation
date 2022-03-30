@@ -27,7 +27,16 @@ const game = {
         // retrieve the inventory counts
         game.iSSlDisplay = document.getElementById("iSSlCount");
         game.sSlDisplay = document.getElementById("sSlCount");
+        game.sSSlDisplay = document.getElementById("sSSlCount");
         game.sPDisplay = document.getElementById("systemPoints");
+
+        // Inventory Row Display objects
+        game.tier1Inventory = document.getElementById("tier1Resource");
+        game.tier2Inventory = document.getElementById("tier2Resource");
+
+        // Start the rows as invisible!
+        game.tier1Inventory.style = "display: none;";
+        game.tier2Inventory.style = "display: none;";
 
         //System Modules
         //Upgrade Module
@@ -82,6 +91,7 @@ const game = {
             // Update the inventory displays!
             game.iSSlDisplay.innerHTML = character.sheet.inventory[0];
             game.sSlDisplay.innerHTML = character.sheet.inventory[1];
+            game.sSSlDisplay.innerHTML = character.sheet.inventory[2];
             game.sPDisplay.innerHTML = character.sheet.inventory.sp;
 
             // Mark the Inventory Displays as up-to-date!
@@ -114,6 +124,15 @@ const game = {
             // Update the Qi Conversion Skill display
             game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
             game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
+
+            // Only display resources we have the Conversion to make!
+            if (character.sheet.skills.qiConversion > 10) {
+                // Display Tier 1 resources!
+                game.tier1Inventory.style = "display: table-row;";
+                if(character.sheet.skills.qiConversion > 20) {
+                    game.tier2Inventory.style = "display: table-row;";
+                }
+            } 
 
 
             // We've updated the displays, so change the thing!
@@ -415,6 +434,11 @@ const rates = {
                 req_tier: 1,
                 amt_per_grade: 10,
                 exd_tier_mult: .5
+            },
+            2: {
+                req_tier: 2,
+                amt_per_grade: 10,
+                exd_tier_mult: .5
             }
         }
 
@@ -442,7 +466,8 @@ const rates = {
         // Create the rates.gain object that will be the quick reference for how much of a resource to generate each time the bar fills
         rates.gain = {
             0: rates.calculateReturn(0),
-            1: rates.calculateReturn(1)
+            1: rates.calculateReturn(1),
+            2: rates.calculateReturn(2)
         }
     },
 
@@ -451,7 +476,8 @@ const rates = {
         rates.time = {
             convert: {
                 0: rates.calculateConversionTime(0),
-                1: rates.calculateConversionTime(1)
+                1: rates.calculateConversionTime(1),
+                2: rates.calculateConversionTime(2)
             },
             regen: game.baseTime*game.secondConvert,
         };
@@ -480,9 +506,10 @@ const rates = {
     },
 
     // Conversion rates from Mass to System Points for each material tier.
-    conversion: {
+    conversion: { // 100^(x-1)
         0: .01,
-        1: 1
+        1: 1,
+        2: 100
     }
 }
 
@@ -588,5 +615,59 @@ const fibbo = {
         FastDoubling(num, res);
 
         return res[0];
+    }
+}
+
+const inspection = {
+    qiConversion: {
+        name: "Qi Conversion",
+        type: "Skill",
+        desc: "This converts your Qi into various resources.  Make sure to click the Generate buttons in the bottom right to get it going!",
+        upg_desc: [
+            "Makes your best tier resource faster",
+            "Unlocks new resources"
+        ]
+    },
+    qiCap: {
+        name: "Qi Capacity",
+        type: "Stat",
+        desc: "This stat governs how much qi you have in reserve! Higher values mean you take longer to run dry!",
+        upg_desc: [
+            "+1 Qi per level!",
+            "May help you Unlock certain things"
+        ]
+    },
+    purity: {
+        name: "Qi Purity",
+        type: "Stat",
+        desc: "This stat governs how much your Qi means, and how dense it is.  This is almost directly comparable to your cultivation realm!",
+        upg_desc: [
+            "+10g produced for the related tier of resource per grade",
+            "May help you unlock certain things"
+        ]
+    },
+    regen: {
+        name: "Qi Regeneration",
+        type: "Stat",
+        desc: "This stat determines how much Qi you get back every time your Qi Regeneration bar (blue) fills.",
+        upg_desc: [
+            "+1 Qi per bar fill per level",
+            "May help you unlock certain things"
+        ]
+    },
+    res0: {
+        name: "Inferior Spirit Slag",
+        type: "Resource",
+        desc: "Little more than energized shit, this is a great fertilizer.  Quite poisonous to humans and other living creatures. Appears to be a gray powder."
+    },
+    res1: {
+        name: "Spirit Slag",
+        type: "Resource",
+        desc: "Quite a bit better than it's 'Inferior' version, this white powder is rather expensive, and greatly accellerates the growth of both normal, and medicinal plants"
+    },
+    res2: {
+        name: "Superior Spirit Slag",
+        type: "Resource",
+        desc: "Heavily energized blue powder.  This slag is so potent, that it is capable of emulating years of growth in hours.  Needless to say, many sects would fight over a reliable source."
     }
 }

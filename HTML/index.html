@@ -76,7 +76,9 @@
                         <div class="menu-display">
                             <div class="startScreenButton" onclick="character.export()" style="float:right;">Save Game</div>
                         </div>
-                        <div class="inspect-display">Four</div>
+                        <div class="inspect-display">
+                            <div class=""></div>
+                        </div>
                         <div class="inventory-display">
                             <table class="inventory">
                                 <tr>
@@ -85,13 +87,13 @@
                                     <th class="resourceCount">Stored</th>
                                     <th></th>
                                 </tr>
-                                <tr style="display:none;">
-                                    <td>Convert</td>
-                                    <td>Generate</td>
-                                    <td class="resourceCount">*error*</td>
+                                <tr id="tier2Resource">
+                                    <td><div class="sys-upgrade-btn" onclick="character.exchange(2)"></td>
+                                    <td><div class="sys-upgrade-btn" onclick="game.startResBar(2)"></td>
+                                    <td id="sSSlCount" class="resourceCount">*error*</td>
                                     <td><img src="../Assets/material_02.png"></td>
                                 </tr>
-                                <tr>
+                                <tr id="tier1Resource">
                                     <td><div class="sys-upgrade-btn" onclick="character.exchange(1)"></div></td>
                                     <td><div class="sys-upgrade-btn" onclick="game.startResBar(1)"></div></td>
                                     <td id="sSlCount" class="resourceCount">*error*</td>
