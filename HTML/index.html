@@ -52,15 +52,15 @@
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
                                         <td><div id="qiCapUpgradeModule">--</div></td>
-                                        <td><img class="sys-upgrade-img" src="../Assets/sq20_up.png" onclick="game.upgradeStat('qiCap')"><div id="qiCapCost">--</div></td>
+                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('qiCap')"></div><div id="qiCapCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
                                         <td><div id="qiPurityUpgradeModule">--</div></td>
-                                        <td><img class="sys-upgrade-img" src="../Assets/sq20_up.png" onclick="game.upgradeStat('purity')"><div id="qiPurityCost">--</div></td>
+                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('purity')"></div><div id="qiPurityCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
                                         <td><div id="qiRegenUpgradeModule">--</div></td>
-                                        <td><img class="sys-upgrade-img" src="../Assets/sq20_up.png" onclick="game.upgradeStat('regen')"><div id="qiRegenCost">--</div></td>
+                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('regen')"></div><div id="qiRegenCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
                                         <td>Skills</td>
@@ -68,13 +68,13 @@
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
                                         <td><div id="qiConversionUpgradeModule">--</div></td>
-                                        <td><img class="sys-upgrade-img" src="../Assets/sq20_up.png" onclick="game.upgradeSkill('qiConversion')"><div id="qiConversionCost">--</div></td>
+                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion')"></div><div id="qiConversionCost">--</div></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="menu-display">
-                            <img src="../Assets/sheet20.png" class="clickable" onclick="character.export()">
+                            <div class="startScreenButton" onclick="character.export()" style="float:right;">Save Game</div>
                         </div>
                         <div class="inspect-display">Four</div>
                         <div class="inventory-display">
@@ -92,14 +92,14 @@
                                     <td><img src="../Assets/material_02.png"></td>
                                 </tr>
                                 <tr>
-                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(1)"></td>
-                                    <td><img src="../Assets/sq19_up.png" onclick="game.startResBar(1)"></td>
+                                    <td><div class="sys-upgrade-btn" onclick="character.exchange(1)"></div></td>
+                                    <td><div class="sys-upgrade-btn" onclick="game.startResBar(1)"></div></td>
                                     <td id="sSlCount" class="resourceCount">*error*</td>
                                     <td><img src="../Assets/material_01.png"></td>
                                 </tr>
                                 <tr>
-                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(0)"></td>
-                                    <td><img src="../Assets/sq19_up.png" onclick="game.startResBar(0)"></td>
+                                    <td><div class="sys-upgrade-btn" onclick="character.exchange(0)"></div></td>
+                                    <td><div class="sys-upgrade-btn" onclick="game.startResBar(0)"></div></td>
                                     <td id="iSSlCount" class="resourceCount">*error*</td>
                                     <td><img src="../Assets/material_16.png"></td>
                                 </tr>
