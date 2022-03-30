@@ -10,7 +10,7 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
-        game.baseTime = 6; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
         // Initial values for the primary progress bar.
@@ -23,17 +23,6 @@ const game = {
         // Secondary progress bar!  This is for the Qi Regen Timer!
         game.regen_bar = document.getElementById("qi-regen-prog");
         game.regen_prog = 0;
-
-
-        // Create the Character object
-        if(type == 'new') {
-            // if the init was called via the "New Game" button
-            character.init('new');
-        } else {
-            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
-            // load provided json (type variable)
-            character.init(type);
-        }
 
         // retrieve the inventory counts
         game.iSSlDisplay = document.getElementById("iSSlCount");
@@ -51,12 +40,27 @@ const game = {
         // Stats Upgrades
         game.qiCap = document.getElementById("qiCapUpgradeModule");
         game.qiCapCost = document.getElementById("qiCapCost");
+
         game.purityD = document.getElementById("qiPurityUpgradeModule");
         game.purityCost = document.getElementById("qiPurityCost");
+
         game.regenD = document.getElementById("qiRegenUpgradeModule");
         game.regenCost = document.getElementById("qiRegenCost");
 
-        
+        // Skills Upgrades
+        game.qiConversion = document.getElementById("qiConversionUpgradeModule");
+        game.qiConversionCost = document.getElementById("qiConversionCost");
+
+        // Create the Character object
+        if(type == 'new') {
+            // if the init was called via the "New Game" button
+            character.init('new');
+        } else {
+            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
+            // load provided json (type variable)
+            character.init(type);
+        }
+
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
     },
@@ -69,12 +73,7 @@ const game = {
         
         // Only runs if there is an active resource production going on!
         if(game.res_bar) {
-
-            // Start the updateResourceBar()
             game.updateResourceBar();
-
-            // TODO: push all of this off into another function!  (probably a new object full of just resource related calculations)
-            
         }
 
         // Only runs if the Character Inventory has been updated
@@ -93,15 +92,32 @@ const game = {
         if(character.updatedStats) {
 
             // Update the System Display's values for each of the main stats!
-            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.cap;
-            game.purityD.innerHTML = "[Qi Purity] - Tier " + (character.sheet.stats.purity/10) + ", Grade " + (character.sheet.stats.purity%10);
-            game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
+            game.qiCapCost.innerHTML = upgrades.stats.qiCap.cost(character.sheet.stats.qiCap);
 
-            // Update the gain rates for the resources!
-            rates.calculateAllReturns();
+            // Helps with fancy writing
+            let rem = character.sheet.stats.purity%10;
+
+            game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
+            game.purityCost.innerHTML = upgrades.stats.purity.cost(character.sheet.stats.purity);
+
+            game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+            game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
             
             // Mark the Stats displays as up-to-date!
             character.updatedStats = false;
+        }
+
+        // If anything skill related changed, update it here!
+        if (character.updatedSkills) {
+
+            // Update the Qi Conversion Skill display
+            game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
+            game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
+
+
+            // We've updated the displays, so change the thing!
+            character.updatedSkills = false;
         }
     },
 
@@ -121,52 +137,46 @@ const game = {
     // Processes all the information for the system to start making stuff!
     startResBar: function(tier) {
 
-        // TODO: Make this check for if the material is even unlocked!
-        if( ( character.sheet.stats.currQi > 0 ) && !game.res_bar) {
+        if ((character.sheet.skills.qiConversion/10) > tier) {
+            if( ( character.sheet.stats.currQi > 0 ) && !game.res_bar) {
 
-            // Tell the GameLoop that we need to update the progress bar now
-            game.res_bar = true;
+                // Tell the GameLoop that we need to update the progress bar now
+                game.res_bar = true;
 
-            // Decrement Qi from the character, as that is the cost of generating resources
-            character.sheet.stats.currQi--;
-            // TODO: make this update part of the function to decrement Qi
-            character.updatedStats = true;
+                // Decrement Qi from the character, as that is the cost of generating resources
+                character.sheet.stats.currQi--;
+                character.updatedStats = true;
 
-            // Tell the system what tier is being made!
-            game.mat_tier = tier;
+                // Tell the system what tier is being made!
+                game.mat_tier = tier;
+            }
+        } else {
+            console.log("Not strong enough!");
         }
     },
 
     // Replaces the updateres_bar() and updateres_barHidden() functions
     // Handles the progress of running materials!
     updateResourceBar: function() {
-        if(game.res_bar_prog < rates.time.convert[game.mat_tier]) {
-
-            // If the bar isn't full, or over-full, 
-            if(document.hidden) {
-                // If the tab isn't active, use enhanced fill-rate
-                game.res_bar_prog += game.secondConvert;
-            } else {
-                // but if it is the active tab, use the normal fill-rate.
-                game.res_bar_prog++;
-            }
-            
+        
+        // If the bar isn't full, or over-full, 
+        if(document.hidden) {
+            // If the tab isn't active, use enhanced fill-rate
+            game.res_bar_prog += game.secondConvert;
         } else {
+            // but if it is the active tab, use the normal fill-rate.
+            game.res_bar_prog++;
+        }
+        if(game.res_bar_prog >= rates.time.convert[game.mat_tier]) {
             // If the bar IS full or over-full,
 
             // Turn off further filling
             game.res_bar = false;
-
             // Set the bar's progress to 0
             game.res_bar_prog = 0;
 
             // Add more resources to the character's inventory 
-            // TODO: Offload any character sheet updates into the character object, so that the flag can be updated appropriately!
             character.sheet.inventory[game.mat_tier] += rates.gain[game.mat_tier];
-
-            // Debug log for my sanity, likely to be removed or commented out!
-            console.log("Spirit Slag: " + character.sheet.inventory[game.mat_tier]);
-
             // Tell the game to update the display for the Inventory on the next opportunity!
             character.updatedInv = true;
         }
@@ -223,20 +233,67 @@ const game = {
         } else {
             // If we are full up!
             // And aren't full of Qi...
-            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.cap){
+            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
                 character.sheet.stats.currQi += character.sheet.stats.regen;
                 // We've updated something for the stats display!
                 character.updatedStats = true;
-            } else if (character.sheet.stats.currQi < character.sheet.stats.cap) {
+            } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
-                character.sheet.stats.currQi = character.sheet.stats.cap;
+                character.sheet.stats.currQi = character.sheet.stats.qiCap;
+                character.updatedStats = true;
             }
             // Reset the progress of the bar!
             game.regen_prog = 0;
         }
         // Regardless of whether the tab is active or not, we've already factored that in!  Just update the style!
         game.regen_bar.style.width = (( game.regen_prog / rates.time.regen )*100)+"%";
+    },
+
+    // Handles stat upgrade requests from the System UI
+    upgradeStat: function(target) {
+
+        console.log("Attempted to upgrade: " + target);
+        // check if we have the SP for the upgrade
+        let cost = upgrades.stats[target].cost(character.sheet.stats[target]);
+        if (character.sheet.inventory.sp >= cost) {
+            // We have enough! Yay!
+
+            // SPEND IT!!!!
+            character.sheet.inventory.sp -= cost;
+            // Increment the stat!
+            character.sheet.stats[target]++;
+
+            if(target == 'purity') {
+                // Update the gain rates for the resources!
+                rates.calculateAllReturns();
+                rates.calculateTimes();
+            }
+
+            // Tell the GameLogic to render the changes!
+            character.updatedStats = true;
+            character.updatedInv = true;
+        }
+    },
+
+    // Call this to request to update a skill!
+    upgradeSkill: function(target) {
+        // Check if we have enough System Points!
+        let cost = upgrades.skills[target].cost(character.sheet.skills[target]);
+        if(character.sheet.inventory.sp >= cost) {
+
+            // Spend the points, then upgrade the skill!
+            character.sheet.inventory.sp -= cost;
+            character.sheet.skills[target]++;
+
+            // Stuff updated!  RENDER IT
+            character.updatedSkills = true;
+            character.updatedInv = true;
+
+            if(target == 'qiConversion') {
+                rates.calculateTimes();
+            }
+        }
     }
 }
 
@@ -256,7 +313,7 @@ const character = {
                     2: 0
                 },
                 stats: {
-                    cap: 10,
+                    qiCap: 10,
                     currQi: 10,
                     purity: 0,
                     regen: 1
@@ -285,6 +342,7 @@ const character = {
         // Make it so the display values are updated to be correct!
         character.updatedInv = true;
         character.updatedStats = true;
+        character.updatedSkills = true;
     },
 
     // Exports the character.sheet object for future loading!
@@ -331,13 +389,15 @@ const character = {
         }
     },
     updatedInv: false, // For if the inventory is updated
-    updatedStats: false // For if any of the character stats are updated.
+    updatedStats: false, // For if any of the character stats are updated.
+    updatedSkills: false
 }
 
 // Stores the rates of resource generation
 const rates = {
     init: function() {
 
+        rates.timePartition = game.baseTime/12;
         // Create the rates on game start/load
         rates.calculateAllReturns();
 
@@ -362,22 +422,20 @@ const rates = {
 
         // saves me some typing!
         // Retrieves the grade of purity
-        var grade = character.sheet.stats.purity%10;
+        // var grade = character.sheet.stats.purity%10;
         // Retrieves the Tier of purity
-        var tier = ( character.sheet.stats.purity - grade ) / 10;
+        // var tier = ( character.sheet.stats.purity - grade ) / 10;
 
-        // Check if we have the required purity tier!
-        if ( tier >= tiers[mat_tier].req_tier ) {
-            // If we have the required tier, we can multiply the product by how much we exceed it by!
-            // If we match it, we don't get any bonus
-            
-            var ret = ( ( ( tier - tiers[mat_tier].req_tier ) * tiers[mat_tier].exd_tier_mult ) + 1 ) * ( ( grade + 1 ) * tiers[mat_tier].amt_per_grade );
+        var pureCheck = (character.sheet.stats.purity+1-(10*tiers[mat_tier].req_tier));
+        if (pureCheck > 0) {
+            var ret = pureCheck*tiers[mat_tier].amt_per_grade;
+            return ret;
+        } else if (pureCheck > -10){
+            pureCheck--;
+            var ret = (tiers[mat_tier].amt_per_grade)+pureCheck;
             return ret;
         } else {
-            // Must divide the production by 10 times the amount we fail to match by
-            // This value is completely arbitrary and has no real meaning. But i like it.
-            var ret = ( ( grade + 1 ) * tiers[mat_tier].amt_per_grade ) / ( ( tiers[mat_tier].req_tier - tier ) * 10 );
-            return ret;
+            return 0;
         }
     },
 
@@ -392,7 +450,6 @@ const rates = {
 
     // Sets the time it takes for each progress bar action!
     calculateTimes: function() {
-        // TODO: make this create the rates.time object!
         rates.time = {
             convert: {
                 0: rates.calculateConversionTime(0),
@@ -404,21 +461,23 @@ const rates = {
 
     // Calculates how long it takes for the character to convert Qi to a given tier of resource
     calculateConversionTime: function(tier) {
-        // Get the purity grade and tier from the character sheet!
-        let purity_grade = character.sheet.stats.purity%10;
-        let purity_tier = character.sheet.stats.purity - purity_grade;
 
-        if ( purity_tier < tier ) {
-            // we don't have enough purity!  Cannot accelerate!
-            return game.baseTime*game.secondConvert;
-        } else if ( purity_tier == tier ) {
-            // Cut back by 1/12 of the time per grade gained in the correct tier
-            // Should match the story's progression closely
-            return (game.baseTime*game.secondConvert)*((12-purity_grade)/12);
+        // Check if purity matches or exceeds tier
+        // Check relation to qiConversion levels
+        if ((character.sheet.stats.purity) >= (tier*10)) {
+            // High enough purity!
+            if ((character.sheet.skills.qiConversion-10) > (tier*10)) {
+                // Exceeding tier by 10 levels of QiConversion!
+                // Speed cap reached
+                return 2*rates.timePartition*game.secondConvert;
+            } else {
+                // No exceeding anything here! do the complex calc for time taken!
+                let relLevel = (character.sheet.skills.qiConversion-1) - (tier*10);
+                return rates.timePartition*game.secondConvert*(12-relLevel);
+            }
         } else {
-            // 1/6 = 2/12.  This turns 60 minutes into 10 minutes!
-            // This is the same as is found in the story! yey
-            return (game.baseTime*game.secondConvert)/6;
+            // Not enough purity! Immediately take the most time possible!
+            return 2*game.baseTime*game.secondConvert;
         }
     },
 
@@ -426,5 +485,110 @@ const rates = {
     conversion: {
         0: .01,
         1: 1
+    }
+}
+
+// These costs are likely to be off by at *least* a little bit, and likely to be off by a wide margin the further into the story we get!
+const upgrades = {
+    skills: {
+        qiConversion: { 
+            cost: function(num) {
+                return fibbo.getMeMyCost(num);
+            }
+        },
+        spiritAura: { // TODO: Figure out why I should implement this skill
+            1: 1
+        },
+        spiritSense: { // TODO: Figure out why I should implement this skill
+            1: 1
+        }
+    },
+    stats: {
+        qiCap: { 
+            cost: function(num) {
+                // Modify it so that it works for qiCap
+                num = (num+1)/10;
+                num -= num%1;
+                num++;
+
+                return fibbo.getMeMyCost(num);
+            }     
+        },
+        purity: {
+            cost: function(num) {
+                // Modify to allow for purity
+                num+=2;
+
+                return fibbo.getMeMyCost(num);
+            }
+        },
+        regen: {
+            cost: function(num) {
+                num++;
+                return fibbo.getMeMyCost(num) * 10;
+            }
+        }
+    }
+}
+
+const fibbo = {
+    getMeMyCost: function(num) {
+        // Javascript program to find the Nth Fibonacci
+        // number using Fast Doubling Method
+
+        let a, b, c, d;
+        let MOD = 1000000000007;
+
+        // Function calculate the N-th fibanacci
+        // number using fast doubling method
+        function FastDoubling(n, res)
+        {
+            // Base Condition
+            if (n == 0) {
+                res[0] = 0;
+                res[1] = 1;
+                return;
+            }
+            FastDoubling(parseInt(n / 2, 10), res);
+
+            // Here a = F(n)
+            a = res[0];
+
+            // Here b = F(n+1)
+            b = res[1];
+
+            c = 2 * b - a;
+
+            if (c < 0) {
+                c += MOD;
+            }
+
+            // As F(2n) = F(n)[2F(n+1) – F(n)]
+            // Here c  = F(2n)
+            c = (a * c) % MOD;
+
+            // As F(2n + 1) = F(n)^2 + F(n+1)^2
+            // Here d = F(2n + 1)
+            d = (a * a + b * b) % MOD;
+
+            // Check if N is odd
+            // or even
+            if (n % 2 == 0) {
+                res[0] = c;
+                res[1] = d;
+            }
+            else {
+                res[0] = d;
+                res[1] = c + d;
+            }
+        }
+
+        // 1 1 2 3 5 8
+        let res = new Array(2);
+        res.fill(0);
+
+        FastDoubling(num, res);
+
+        return res[0];
     }
 }
