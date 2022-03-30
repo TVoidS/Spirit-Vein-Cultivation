@@ -8,14 +8,12 @@ Otherwise, just download the entire project and run the index.html
 It should work, but the buttons won't appear
 
 ## TODO:
-### Planned for this Branch:
-- Skills display and upgrading
+### Planned for SOON(TM):
 - Spirit Accumulation Module
-- Modified gain rate of higher tier resources
 - Determine y/n to subsections for upgrade module
 
 ### Additions:
-- Add Skills to Upgrade Module
+- More skills!
 - Create Inspection display (displays details gained via the "Inspect" function)
 - Text Log for displaying updates, e.g. "Quest Unlocks" or other such things
 - QUESTS: Entire thing needs to be implemented!
@@ -23,6 +21,9 @@ It should work, but the buttons won't appear
 - "Character Size" needs to be added and utilized!  Research into what it actually changes too!
 
 ### Changes: 
-- Gain Rate of higher tier resources needs to be modified, either the time taken or amount gained, or both
 - Maybe make the Upgrade Module have subsections that are hidden by default (Skills, Stats, etc.) instead of all on/off
 - All of the Art and Graphics need to be modified and updated to something properly usable.
+
+### Potential Additions:
+- "Users" who are using your Spirit Aura to cultivate
+- "Total Produced" and "Total Used by Cultivators" to show how much of your produced resources have been picked up and used by cultivators
