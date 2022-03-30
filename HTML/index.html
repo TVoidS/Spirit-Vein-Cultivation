@@ -13,8 +13,10 @@
         <div id="wrapper">
             <div id="gamecontainer">
                 <div id="startscreen" class="gamelayer">
-                    <img src="../Assets/sq19_up.png" alt="New Game" onclick="menu.showGameScreen();game.init('new')"><br>
-                    <img src="../Assets/sq20_up.png" alt="Load Game" onclick="document.getElementById('fileInput').click()"><br>
+                    <table class="startScreenTable">
+                        <tr class="startScreenTableRow"><td><div class="startScreenButton" onclick="menu.showGameScreen();game.init('new')">New Game</div></td></tr>
+                        <tr class="startScreenTableRow"><td><div class="startScreenButton" onclick="document.getElementById('fileInput').click()">Load Game</div></td></tr>
+                    </table>
                     <input id="fileInput" type="file" accept=".json" style="display:none;" oninput="menu.loadCharacter()">
                 </div>
 
