@@ -220,23 +220,21 @@ const game = {
     // Handle everything related to Qi Regen, except updating the stats display when done!
     updateQiRegenBar: function() {
 
-        if ( game.regen_prog < rates.time.regen ) {
-            // If there is more to regen!0
-            if(document.hidden) {
-                // If the tab isn't active!
-                // We need to make more progress per tick if the tab isn't active!
-                game.regen_prog += game.secondConvert;
-            } else {
-                // If the tab IS active, just increment!
-                game.regen_prog++;
-            }
+        // If there is more to regen!0
+        if(document.hidden) {
+            // If the tab isn't active!
+            // We need to make more progress per tick if the tab isn't active!
+            game.regen_prog += game.secondConvert;
         } else {
+            // If the tab IS active, just increment!
+            game.regen_prog++;
+        }
+        if (game.regen_prog >= rates.time.regen) {
             // If we are full up!
             // And aren't full of Qi...
             if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
                 character.sheet.stats.currQi += character.sheet.stats.regen;
-                // We've updated something for the stats display!
                 character.updatedStats = true;
             } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
