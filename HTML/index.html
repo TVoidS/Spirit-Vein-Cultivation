@@ -77,7 +77,30 @@
                             <div class="startScreenButton" onclick="character.export()" style="float:right;">Save Game</div>
                         </div>
                         <div class="inspect-display">
-                            <div class=""></div>
+                            <!-- Will auto-fill with stuff when you click on inspectable things! (Or starts in with a tutorial?) -->
+                            <div>
+                                <table class="inspect-display-type">
+                                    <tr>
+                                        <td colspan="2" style="text-align: center;" id="inspectName">
+                                            Tutorial
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Type: </td>
+                                        <td><div id="inspectType">Quest</div></td>
+                                    </tr>
+                                </table>
+                                <div style="margin:5px;">
+                                    <div style="float:left;">Description: </div>
+                                    <div id="inspectDescription">
+                                        To play, click the "Generate" button in the bottom right to make resources, and the "Convert" once you have at least 100g of it to gain System Points!
+                                        Exchange your System Points in the "Upgrade Module" in the System Display in the top left to get stronger! 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="inspect-bottom-display">
+                                Reward: You learned how to play!
+                            </div>
                         </div>
                         <div class="inventory-display">
                             <table class="inventory">
