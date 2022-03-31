@@ -29,6 +29,9 @@ const game = {
         // Skills Upgrades
         setup.characterSkills();
 
+        // Setup the inspection ability
+        setup.inspection();
+
         // Create the Character object
         if(type == 'new') {
             // if the init was called via the "New Game" button
@@ -303,6 +306,36 @@ const game = {
                 rates.calculateTimes();
             }
         }
+    },
+
+    // makes a call to inspect an item, and updates the related Inspection Display
+    inspect: function(target) {
+        // If the target exists
+        if(inspection[target]){
+            // Update common items
+            game.inspectName.innerHTML = inspection[target].name;
+            game.inspectType.innerHTML = inspection[target].type;
+            game.inspectDesc.innerHTML = inspection[target].desc;
+
+            // Check for what the "Extra" display would be used for!
+
+            if(inspection[target].upg_desc) {
+                // There will be an array of objects here
+                var out = '<table class="inspectExtra">'
+                for(let i = 0; i < inspection[target].upg_desc.length; i++) {
+                    // Add a <td> </td> per item?
+                    out += "<td>" + inspection[target].upg_desc[i] + "</td>";
+                }
+                out += "</table>";
+                game.inspectExt.style.display = "block";
+                game.inspectExt.innerHTML = out;
+            } else {
+                // No bonus content found, hide the thingy!
+                game.inspectExt.style.display = "none";
+                game.inspectExt.innerHTML = "";
+            }
+        }
+
     }
 }
 
@@ -369,6 +402,13 @@ const setup = {
         game.qiConversionCost = document.getElementById("qiConversionCost");
 
         // This is where other skills would go when added!
+    },
+    // Handles connection to the Inspection Display pieces.
+    inspection: function() {
+        game.inspectName = document.getElementById("inspectName");
+        game.inspectType = document.getElementById("inspectType");
+        game.inspectDesc = document.getElementById("inspectDescription");
+        game.inspectExt = document.getElementById("inspectExtra");
     }
 }
 

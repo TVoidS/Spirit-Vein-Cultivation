@@ -116,10 +116,21 @@ body{
     padding: 3px;
 }
 .inspect-bottom-display {
-    padding:5px;
     display:block;
     width:unset;
     border-top: 1px solid #bdbdbd;
+}
+.inspectExtra {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.inspectExtra td {
+    border-left: 1px solid #bdbdbd;
+    padding: 5px;
+}
+.inspectExtra td:first-child {
+    border-left:none;
 }
 .grid-container {
     display: grid;
@@ -129,6 +140,7 @@ body{
     'systemD display inventory'
     'systemD inspect inventory';
     grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: 1fr 2fr 2fr;
     gap: 5px;
     height:100%;
 }
@@ -223,4 +235,21 @@ body{
 .sys-upgrade-btn:hover {
     box-shadow: 0px 0px 10px rgba(206, 29, 157, 0.4);
     background: rgb(60,0,120);
+}
+.downloadButton {
+    background: rgb(39,0,89);
+    background: linear-gradient(135deg, rgba(39,0,89,1) 39%, rgba(115,60,129,1) 100%, rgba(42,0,255,1) 100%); 
+    border: 2px solid grey;
+    color: lightgrey;
+    text-align: center;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    width: 100px;
+    height: 40px;
+    top: 50%;
+    right: 50%;
+}
+.downloadButton:hover {
+    box-shadow: 0px 0px 20px rgba(206, 29, 157, 0.4);
 }

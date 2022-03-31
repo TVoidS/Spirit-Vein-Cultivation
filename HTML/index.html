@@ -51,15 +51,15 @@
                                         <td>Cost</td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiCapUpgradeModule">--</div></td>
+                                        <td><div id="qiCapUpgradeModule" onclick="game.inspect('qiCap')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('qiCap')"></div><div id="qiCapCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiPurityUpgradeModule">--</div></td>
+                                        <td><div id="qiPurityUpgradeModule" onclick="game.inspect('purity')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('purity')"></div><div id="qiPurityCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiRegenUpgradeModule">--</div></td>
+                                        <td><div id="qiRegenUpgradeModule" onclick="game.inspect('regen')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('regen')"></div><div id="qiRegenCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
@@ -67,14 +67,14 @@
                                         <td>Cost</td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiConversionUpgradeModule">--</div></td>
+                                        <td><div id="qiConversionUpgradeModule" onclick="game.inspect('qiConversion')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion')"></div><div id="qiConversionCost">--</div></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="menu-display">
-                            <div class="startScreenButton" onclick="character.export()" style="float:right;">Save Game</div>
+                            <div class="downloadButton" onclick="character.export()" style="float:right;">Download Character</div>
                         </div>
                         <div class="inspect-display">
                             <!-- Will auto-fill with stuff when you click on inspectable things! (Or starts in with a tutorial?) -->
@@ -98,7 +98,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="inspect-bottom-display">
+                            <div id="inspectExtra" class="inspect-bottom-display">
                                 Reward: You learned how to play!
                             </div>
                         </div>
@@ -114,19 +114,19 @@
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(2)"></td>
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(2)"></td>
                                     <td id="sSSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_02.png"></td>
+                                    <td><img src="../Assets/material_02.png" onclick="game.inspect('res2')"></td>
                                 </tr>
                                 <tr id="tier1Resource">
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(1)"></div></td>
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(1)"></div></td>
                                     <td id="sSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_01.png"></td>
+                                    <td><img src="../Assets/material_01.png" onclick="game.inspect('res1')"></td>
                                 </tr>
                                 <tr>
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(0)"></div></td>
                                     <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(0)"></div></td>
                                     <td id="iSSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_16.png"></td>
+                                    <td><img src="../Assets/material_16.png" onclick="game.inspect('res0')"></td>
                                 </tr>
                             </table>
                         </div>
