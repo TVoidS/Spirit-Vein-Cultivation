@@ -10,46 +10,27 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
-        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        game.baseTime = 12; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
-        // Initial values for the primary progress bar.
-        game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
-        game.res_bar = false;
-        game.res_bar_max = 1 * game.secondConvert;
-        game.res_bar_prog = 0;
-        game.mat_tier = 0;
+        // Initial values for the progress bars.
+        setup.bars();
 
-        // Secondary progress bar!  This is for the Qi Regen Timer!
-        game.regen_bar = document.getElementById("qi-regen-prog");
-        game.regen_prog = 0;
-
-        // retrieve the inventory counts
-        game.iSSlDisplay = document.getElementById("iSSlCount");
-        game.sSlDisplay = document.getElementById("sSlCount");
-        game.sPDisplay = document.getElementById("systemPoints");
+        // connect the character's inventory to the related display html
+        setup.inventory();
 
         //System Modules
         //Upgrade Module
-        
-        // General Display
-        game.sysUpMod = document.getElementsByClassName("upgradeModule");
-        game.upExp = document.getElementById("upgradeExpand");
-        game.upExpanded = false;
+        setup.systemUpgradeModule();
 
         // Stats Upgrades
-        game.qiCap = document.getElementById("qiCapUpgradeModule");
-        game.qiCapCost = document.getElementById("qiCapCost");
-
-        game.purityD = document.getElementById("qiPurityUpgradeModule");
-        game.purityCost = document.getElementById("qiPurityCost");
-
-        game.regenD = document.getElementById("qiRegenUpgradeModule");
-        game.regenCost = document.getElementById("qiRegenCost");
+        setup.characterStats();
 
         // Skills Upgrades
-        game.qiConversion = document.getElementById("qiConversionUpgradeModule");
-        game.qiConversionCost = document.getElementById("qiConversionCost");
+        setup.characterSkills();
+
+        // Setup the inspection ability
+        setup.inspection();
 
         // Create the Character object
         if(type == 'new') {
@@ -77,48 +58,81 @@ const game = {
         }
 
         // Only runs if the Character Inventory has been updated
+        // TODO: make this load only when needed!
+        // We shouldn't need to make this check at all after the TODO is completed!
         if(character.updatedInv) {
-
-            // Update the inventory displays!
-            game.iSSlDisplay.innerHTML = character.sheet.inventory[0];
-            game.sSlDisplay.innerHTML = character.sheet.inventory[1];
-            game.sPDisplay.innerHTML = character.sheet.inventory.sp;
-
-            // Mark the Inventory Displays as up-to-date!
-            character.updatedInv = false;
+            game.updateInventoryCounts();
         }
 
         // Only if the character's stats have been marked as updated.
+        // TODO: make this load only when needed!
+        // We shouldn't need to make this check at all after the TODO is completed!
         if(character.updatedStats) {
-
-            // Update the System Display's values for each of the main stats!
-            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
-            game.qiCapCost.innerHTML = upgrades.stats.qiCap.cost(character.sheet.stats.qiCap);
-
-            // Helps with fancy writing
-            let rem = character.sheet.stats.purity%10;
-
-            game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
-            game.purityCost.innerHTML = upgrades.stats.purity.cost(character.sheet.stats.purity);
-
-            game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
-            game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
-            
-            // Mark the Stats displays as up-to-date!
-            character.updatedStats = false;
+            game.updateCharacterStatDisplays();
         }
 
         // If anything skill related changed, update it here!
+        // TODO: make this load only when needed!
+        // We shouldn't need to make this check at all after the TODO is completed!
         if (character.updatedSkills) {
-
-            // Update the Qi Conversion Skill display
-            game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
-            game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
-
-
-            // We've updated the displays, so change the thing!
-            character.updatedSkills = false;
+            game.updateCharacterSkillDisplays();
         }
+    },
+
+    // Handles everything related to the numbers on the inventory display!
+    updateInventoryCounts: function() {
+        // Update the inventory displays!
+        game.iSSlDisplay.innerHTML = character.sheet.inventory[0];
+        game.sSlDisplay.innerHTML = character.sheet.inventory[1];
+        game.sSSlDisplay.innerHTML = character.sheet.inventory[2];
+        game.sPDisplay.innerHTML = character.sheet.inventory.sp;
+
+        // Mark the Inventory Displays as up-to-date!
+        character.updatedInv = false;
+    },
+
+    // When Qi Conversion rises, we need to handle this!
+    // TODO: load this ONLY when Qi Conversion is upgraded, not when every skill is upgraded!
+    updateInventoryRows: function() {
+        if (character.sheet.skills.qiConversion > 10) {
+            // Display Tier 1 resources!
+            game.tier1Inventory.style = "display: table-row;";
+            if(character.sheet.skills.qiConversion > 20) {
+                game.tier2Inventory.style = "display: table-row;";
+            }
+        }
+    },
+
+    // Handles all of the changes to the display of character stats!
+    updateCharacterStatDisplays: function() {
+        // Update the System Display's values for each of the main stats!
+        game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
+        game.qiCapCost.innerHTML = upgrades.stats.qiCap.cost(character.sheet.stats.qiCap);
+
+        // Helps with fancy writing
+        let rem = character.sheet.stats.purity%10;
+
+        game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
+        game.purityCost.innerHTML = upgrades.stats.purity.cost(character.sheet.stats.purity);
+
+        game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+        game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
+        
+        // Mark the Stats displays as up-to-date!
+        character.updatedStats = false;
+    },
+
+    // Handles all changes to the Skill Displays.
+    updateCharacterSkillDisplays: function() {
+        // Update the Qi Conversion Skill display
+        game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
+        game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
+
+        // Only display resources we have the Conversion to make!
+        game.updateInventoryRows();
+
+        // We've updated the displays, so change the thing!
+        character.updatedSkills = false;
     },
 
     //Unused for now, but may find a use for it
@@ -292,6 +306,109 @@ const game = {
                 rates.calculateTimes();
             }
         }
+    },
+
+    // makes a call to inspect an item, and updates the related Inspection Display
+    inspect: function(target) {
+        // If the target exists
+        if(inspection[target]){
+            // Update common items
+            game.inspectName.innerHTML = inspection[target].name;
+            game.inspectType.innerHTML = inspection[target].type;
+            game.inspectDesc.innerHTML = inspection[target].desc;
+
+            // Check for what the "Extra" display would be used for!
+
+            if(inspection[target].upg_desc) {
+                // There will be an array of objects here
+                var out = '<table class="inspectExtra">'
+                for(let i = 0; i < inspection[target].upg_desc.length; i++) {
+                    // Add a <td> </td> per item?
+                    out += "<td>" + inspection[target].upg_desc[i] + "</td>";
+                }
+                out += "</table>";
+                game.inspectExt.style.display = "block";
+                game.inspectExt.innerHTML = out;
+            } else {
+                // No bonus content found, hide the thingy!
+                game.inspectExt.style.display = "none";
+                game.inspectExt.innerHTML = "";
+            }
+        }
+
+    }
+}
+
+const setup = {
+    bars: function() {
+        // Main resource bar setup
+        game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
+
+        // Whether the bar is active or not (you just opened the game, of course it's off!);
+        game.res_bar = false;
+
+        // the progress of the resource bar, higher = closer to done
+        game.res_bar_prog = 0;
+
+        // The tier of resource being produced.  Used to make sure we are calculating against the right time and at the right pace.
+        game.mat_tier = 0;
+
+        // Qi Regen Bar setup
+        game.regen_bar = document.getElementById("qi-regen-prog");
+        game.regen_prog = 0;
+    },
+    inventory: function() {
+        // Inferior Spirit Slag
+        game.iSSlDisplay = document.getElementById("iSSlCount");
+        // Spirit Slag
+        game.sSlDisplay = document.getElementById("sSlCount");
+        // Superior Spirit Slag
+        game.sSSlDisplay = document.getElementById("sSSlCount");
+        // System Points
+        game.sPDisplay = document.getElementById("systemPoints");
+
+        // Inventory Row Display objects
+        game.tier1Inventory = document.getElementById("tier1Resource");
+        game.tier2Inventory = document.getElementById("tier2Resource");
+
+        // Start the rows as invisible! (they become visible when we unlock them, but we just booted up, so they will start invis)
+        game.tier1Inventory.style = "display: none;";
+        game.tier2Inventory.style = "display: none;";
+    },
+    systemUpgradeModule: function() {
+        // The array of all elements that are considered parts of the Upgrade Module (attatches them to the toggle)
+        game.sysUpMod = document.getElementsByClassName("upgradeModule");
+        // The Open/Close item that handles the onclick for the Upgrade Module
+        game.upExp = document.getElementById("upgradeExpand");
+        // The flag to help us track if the module is open or not.
+        game.upExpanded = false;
+    },
+    characterStats: function() {
+        // Connect to the Qi Capacity HTML objects
+        game.qiCap = document.getElementById("qiCapUpgradeModule");
+        game.qiCapCost = document.getElementById("qiCapCost");
+
+        // Connect to the Qi Purity HTML objects
+        game.purityD = document.getElementById("qiPurityUpgradeModule");
+        game.purityCost = document.getElementById("qiPurityCost");
+
+        // Connect to the Qi Regeneration HTML objects
+        game.regenD = document.getElementById("qiRegenUpgradeModule");
+        game.regenCost = document.getElementById("qiRegenCost");
+    },
+    characterSkills: function() {
+        // Connect to the Qi Conversion display HTML objects
+        game.qiConversion = document.getElementById("qiConversionUpgradeModule");
+        game.qiConversionCost = document.getElementById("qiConversionCost");
+
+        // This is where other skills would go when added!
+    },
+    // Handles connection to the Inspection Display pieces.
+    inspection: function() {
+        game.inspectName = document.getElementById("inspectName");
+        game.inspectType = document.getElementById("inspectType");
+        game.inspectDesc = document.getElementById("inspectDescription");
+        game.inspectExt = document.getElementById("inspectExtra");
     }
 }
 
@@ -415,6 +532,11 @@ const rates = {
                 req_tier: 1,
                 amt_per_grade: 10,
                 exd_tier_mult: .5
+            },
+            2: {
+                req_tier: 2,
+                amt_per_grade: 10,
+                exd_tier_mult: .5
             }
         }
 
@@ -442,7 +564,8 @@ const rates = {
         // Create the rates.gain object that will be the quick reference for how much of a resource to generate each time the bar fills
         rates.gain = {
             0: rates.calculateReturn(0),
-            1: rates.calculateReturn(1)
+            1: rates.calculateReturn(1),
+            2: rates.calculateReturn(2)
         }
     },
 
@@ -451,7 +574,8 @@ const rates = {
         rates.time = {
             convert: {
                 0: rates.calculateConversionTime(0),
-                1: rates.calculateConversionTime(1)
+                1: rates.calculateConversionTime(1),
+                2: rates.calculateConversionTime(2)
             },
             regen: game.baseTime*game.secondConvert,
         };
@@ -480,9 +604,10 @@ const rates = {
     },
 
     // Conversion rates from Mass to System Points for each material tier.
-    conversion: {
+    conversion: { // 100^(x-1)
         0: .01,
-        1: 1
+        1: 1,
+        2: 100
     }
 }
 
@@ -588,5 +713,59 @@ const fibbo = {
         FastDoubling(num, res);
 
         return res[0];
+    }
+}
+
+const inspection = {
+    qiConversion: {
+        name: "Qi Conversion",
+        type: "Skill",
+        desc: "This converts your Qi into various resources.  Make sure to click the Generate buttons in the bottom right to get it going!",
+        upg_desc: [
+            "Makes your best tier resource faster",
+            "Unlocks new resources"
+        ]
+    },
+    qiCap: {
+        name: "Qi Capacity",
+        type: "Stat",
+        desc: "This stat governs how much qi you have in reserve! Higher values mean you take longer to run dry!",
+        upg_desc: [
+            "+1 Qi per level!",
+            "May help you Unlock certain things"
+        ]
+    },
+    purity: {
+        name: "Qi Purity",
+        type: "Stat",
+        desc: "This stat governs how much your Qi means, and how dense it is.  This is almost directly comparable to your cultivation realm!",
+        upg_desc: [
+            "+10g produced for the related tier of resource per grade",
+            "May help you unlock certain things"
+        ]
+    },
+    regen: {
+        name: "Qi Regeneration",
+        type: "Stat",
+        desc: "This stat determines how much Qi you get back every time your Qi Regeneration bar (blue) fills.",
+        upg_desc: [
+            "+1 Qi per bar fill per level",
+            "May help you unlock certain things"
+        ]
+    },
+    res0: {
+        name: "Inferior Spirit Slag",
+        type: "Resource",
+        desc: "Little more than energized shit, this is a great fertilizer.  Quite poisonous to humans and other living creatures. Appears to be a gray powder."
+    },
+    res1: {
+        name: "Spirit Slag",
+        type: "Resource",
+        desc: "Quite a bit better than it's 'Inferior' version, this white powder is rather expensive, and greatly accellerates the growth of both normal, and medicinal plants"
+    },
+    res2: {
+        name: "Superior Spirit Slag",
+        type: "Resource",
+        desc: "Heavily energized blue powder.  This slag is so potent, that it is capable of emulating years of growth in hours.  Needless to say, many sects would fight over a reliable source."
     }
 }

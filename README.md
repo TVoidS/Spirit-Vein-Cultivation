@@ -13,8 +13,9 @@ It should work, but the buttons won't appear
 
 ## TODO:
 ### Planned for SOON(TM):
-- Spirit Accumulation Module
-- Determine y/n to subsections for upgrade module
+- Inspection Display
+- Text Log
+- Quests
 
 ### Additions:
 - More skills!
