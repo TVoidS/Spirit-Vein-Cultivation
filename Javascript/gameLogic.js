@@ -56,27 +56,6 @@ const game = {
         if(game.res_bar) {
             game.updateResourceBar();
         }
-
-        // Only runs if the Character Inventory has been updated
-        // TODO: make this load only when needed!
-        // We shouldn't need to make this check at all after the TODO is completed!
-        if(character.updatedInv) {
-            game.updateInventoryCounts();
-        }
-
-        // Only if the character's stats have been marked as updated.
-        // TODO: make this load only when needed!
-        // We shouldn't need to make this check at all after the TODO is completed!
-        if(character.updatedStats) {
-            game.updateCharacterStatDisplays();
-        }
-
-        // If anything skill related changed, update it here!
-        // TODO: make this load only when needed!
-        // We shouldn't need to make this check at all after the TODO is completed!
-        if (character.updatedSkills) {
-            game.updateCharacterSkillDisplays();
-        }
     },
 
     // Handles everything related to the numbers on the inventory display!
@@ -86,13 +65,9 @@ const game = {
         game.sSlDisplay.innerHTML = character.sheet.inventory[1];
         game.sSSlDisplay.innerHTML = character.sheet.inventory[2];
         game.sPDisplay.innerHTML = character.sheet.inventory.sp;
-
-        // Mark the Inventory Displays as up-to-date!
-        character.updatedInv = false;
     },
 
     // When Qi Conversion rises, we need to handle this!
-    // TODO: load this ONLY when Qi Conversion is upgraded, not when every skill is upgraded!
     updateInventoryRows: function() {
         if (character.sheet.skills.qiConversion > 10) {
             // Display Tier 1 resources!
@@ -117,9 +92,6 @@ const game = {
 
         game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
         game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
-        
-        // Mark the Stats displays as up-to-date!
-        character.updatedStats = false;
     },
 
     // Handles all changes to the Skill Displays.
@@ -127,12 +99,6 @@ const game = {
         // Update the Qi Conversion Skill display
         game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
         game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
-
-        // Only display resources we have the Conversion to make!
-        game.updateInventoryRows();
-
-        // We've updated the displays, so change the thing!
-        character.updatedSkills = false;
     },
 
     //Unused for now, but may find a use for it
@@ -159,7 +125,7 @@ const game = {
 
                 // Decrement Qi from the character, as that is the cost of generating resources
                 character.sheet.stats.currQi--;
-                character.updatedStats = true;
+                game.updateCharacterStatDisplays();
 
                 // Tell the system what tier is being made!
                 game.mat_tier = tier;
@@ -191,8 +157,9 @@ const game = {
 
             // Add more resources to the character's inventory 
             character.sheet.inventory[game.mat_tier] += rates.gain[game.mat_tier];
-            // Tell the game to update the display for the Inventory on the next opportunity!
-            character.updatedInv = true;
+            
+            // Update the Inventory Counts display!
+            game.updateInventoryCounts();
         }
         game.spiritSlagProgBar.style.width = ((game.res_bar_prog/rates.time.convert[game.mat_tier])*100) + "%";
     },
@@ -249,11 +216,11 @@ const game = {
             if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
                 character.sheet.stats.currQi += character.sheet.stats.regen;
-                character.updatedStats = true;
+                game.updateCharacterStatDisplays();
             } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
                 character.sheet.stats.currQi = character.sheet.stats.qiCap;
-                character.updatedStats = true;
+                game.updateCharacterStatDisplays();
             }
             // Reset the progress of the bar!
             game.regen_prog = 0;
@@ -282,9 +249,9 @@ const game = {
                 rates.calculateTimes();
             }
 
-            // Tell the GameLogic to render the changes!
-            character.updatedStats = true;
-            character.updatedInv = true;
+            // Render the changes!
+            game.updateCharacterStatDisplays();
+            game.updateInventoryCounts();
         }
     },
 
@@ -299,11 +266,12 @@ const game = {
             character.sheet.skills[target]++;
 
             // Stuff updated!  RENDER IT
-            character.updatedSkills = true;
-            character.updatedInv = true;
+            game.updateCharacterSkillDisplays();
+            game.updateInventoryCounts();
 
             if(target == 'qiConversion') {
                 rates.calculateTimes();
+                game.updateInventoryRows();
             }
         }
     },
@@ -455,9 +423,9 @@ const character = {
         rates.init();
 
         // Make it so the display values are updated to be correct!
-        character.updatedInv = true;
-        character.updatedStats = true;
-        character.updatedSkills = true;
+        game.updateInventoryCounts();
+        game.updateCharacterStatDisplays();
+        game.updateCharacterSkillDisplays();
     },
 
     // Exports the character.sheet object for future loading!
@@ -500,12 +468,9 @@ const character = {
             character.sheet.inventory.sp += quantity * rates.conversion[tier];
 
             // We updated the inventory, so update related display components!
-            character.updatedInv = true;
+            game.updateInventoryCounts();
         }
-    },
-    updatedInv: false, // For if the inventory is updated
-    updatedStats: false, // For if any of the character stats are updated.
-    updatedSkills: false
+    }
 }
 
 // Stores the rates of resource generation
