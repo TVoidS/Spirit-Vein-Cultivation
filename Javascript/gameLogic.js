@@ -45,6 +45,9 @@ const game = {
             character.init(type);
         }
 
+        // Welcome them to the game!
+        game.registerEvent('Welcome', 'Welcome to the Spirit Vein Idle game!  Make sure to keep up with the story on Royal Road!');
+
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
     },
@@ -72,11 +75,28 @@ const game = {
 
     // When Qi Conversion rises, we need to handle this!
     updateInventoryRows: function() {
+        if (!character.sheet.thresholds.qiConversion.res1 && character.sheet.skills.qiConversion > 10) {
+            game.registerEvent("Unlock", "You just unlocked a new tier of resource!  Spirit Slag!  ... Don't look at me like that.  The descriptor 'Inferior' should have given this one away.");
+            // We just hit level 11, or far surpassed it!  We passed the threshold, so update, and move on
+            character.sheet.thresholds.qiConversion.res1 = true;
+            game.tier1Inventory.style = "display: table-row;";
+        }
+        if (!character.sheet.thresholds.qiConversion.res2 && character.sheet.skills.qiConversion > 20) {
+            game.registerEvent("Unlock", "You just unlocked SUPERIOR Spirit Slag.  Just like normal Spirit Slag, but blue!");
+            // We just hit level 21, or far surpassed it!  We passed the threshold, so update, and move on
+            character.sheet.thresholds.qiConversion.res2 = true;
+            game.tier2Inventory.style = "display: table-row;";
+        }
+    },
+
+    // For the initial load of the Inventory Rows.  This is to fix problems when loading in as a saved character at high level
+    onLoadInventoryRows: function() {
         if (character.sheet.skills.qiConversion > 10) {
             // Display Tier 1 resources!
             game.tier1Inventory.style = "display: table-row;";
             if(character.sheet.skills.qiConversion > 20) {
                 game.tier2Inventory.style = "display: table-row;";
+                // add more for each tier of resource added!
             }
         }
     },
@@ -134,6 +154,7 @@ const game = {
                 game.mat_tier = tier;
             }
         } else {
+            // TODO: Turn this into an Inspect Screen, or maybe leave it as a potential Error message?
             console.log("Not strong enough!");
         }
     },
@@ -234,8 +255,6 @@ const game = {
 
     // Handles stat upgrade requests from the System UI
     upgradeStat: function(target) {
-
-        console.log("Attempted to upgrade: " + target);
         // check if we have the SP for the upgrade
         let cost = upgrades.stats[target].cost(character.sheet.stats[target]);
         if (character.sheet.inventory.sp >= cost) {
@@ -315,6 +334,8 @@ const game = {
     }
 }
 
+
+// This object is for connection forming, and constant data loading.  NOT FOR CHARACTER SETUP
 const setup = {
     bars: function() {
         // Main resource bar setup
@@ -390,32 +411,46 @@ const setup = {
 
 const character = {
     init: function(data) {
+        let temp_sheet = {
+            inventory: {
+                sp: 0,
+                0: 0,
+                1: 0,
+                2: 0
+            },
+            stats: {
+                qiCap: 10,
+                currQi: 10,
+                purity: 0,
+                regen: 1
+            },
+            skills: {
+                qiConversion: 1 // TODO: MORE SKILLS
+            },
+            quest: {
+                // TODO: MAKE QUESTS
+            },
+            thresholds: {
+                qiConversion: {
+                    res1: false,
+                    res2: false,
+                    res3: false,
+                    res4: false,
+                    res5: false,
+                    res6: false,
+                    res7: false,
+                    res8: false,
+                    res9: false
+                }
+            }
+        };
         if(data == 'new') {
             // Sanity check console log!
             console.log("registered new character");
 
             // This is the Character Sheet.  Keeps track of ALL the data that is saved!
             // This is to make saving and loading *REALLY* easy for me!
-            character.sheet = {
-                inventory: {
-                    sp: 0,
-                    0: 0,
-                    1: 0,
-                    2: 0
-                },
-                stats: {
-                    qiCap: 10,
-                    currQi: 10,
-                    purity: 0,
-                    regen: 1
-                },
-                skills: {
-                    qiConversion: 1 // TODO: MORE SKILLS
-                },
-                quest: {
-                    // TODO: MAKE QUESTS
-                }
-            }
+            character.sheet = temp_sheet;
         } else {
 
             // This is the "Load Character" portion of the init!
@@ -424,7 +459,14 @@ const character = {
             // Sanity check console log!
             console.log(character.sheet);
 
-            // TODO: SAVE VERIFICATION AND UPDATING!
+            // Save checking!
+            let keys = Object.keys(temp_sheet);
+            keys.forEach(element => {
+                if(!character.sheet.hasOwnProperty(element)) {
+                    // We don't got that here, we got:
+                    character.sheet[element] = temp_sheet[element];
+                }
+            });
         }
 
         //Make sure to start up the rates object, or you'd never get any Spirit Slag in the first place!
@@ -432,6 +474,7 @@ const character = {
 
         // Make it so the display values are updated to be correct!
         game.updateInventoryCounts();
+        game.onLoadInventoryRows();
         game.updateCharacterStatDisplays();
         game.updateCharacterSkillDisplays();
     },
