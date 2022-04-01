@@ -9,3 +9,7 @@ Assets/
 # *.class
 # *.dll
 # *.exe
+
+# Everything Except #
+# !/Folder/File
+# !/Folder/*
