@@ -13,10 +13,8 @@
         <div id="wrapper">
             <div id="gamecontainer">
                 <div id="startscreen" class="gamelayer">
-                    <table class="startScreenTable">
-                        <tr class="startScreenTableRow"><td><div class="startScreenButton" onclick="menu.showGameScreen();game.init('new')">New Game</div></td></tr>
-                        <tr class="startScreenTableRow"><td><div class="startScreenButton" onclick="document.getElementById('fileInput').click()">Load Game</div></td></tr>
-                    </table>
+                    <img src="../Assets/sq19_up.png" alt="New Game" onclick="menu.showGameScreen();game.init('new')"><br>
+                    <img src="../Assets/sq20_up.png" alt="Load Game" onclick="document.getElementById('fileInput').click()"><br>
                     <input id="fileInput" type="file" accept=".json" style="display:none;" oninput="menu.loadCharacter()">
                 </div>
 
@@ -26,9 +24,6 @@
                         <div class="main-display">
                             <div id="spirit-slag-bar">
                                 <div id="spirit-slag-prog"></div>
-                            </div>
-                            <div id="qi-regen-bar">
-                                <div id="qi-regen-prog"></div>
                             </div>
                         </div>
                         <div class="system-display">
@@ -51,105 +46,48 @@
                                         <td>Cost</td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiCapUpgradeModule" onclick="game.inspect('qiCap')">--</div></td>
-                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('qiCap')"></div><div id="qiCapCost">--</div></td>
+                                        <td><div id="qiCapUpgradeModule">--</div></td>
+                                        <td><div id="qiCapCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiPurityUpgradeModule" onclick="game.inspect('purity')">--</div></td>
-                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('purity')"></div><div id="qiPurityCost">--</div></td>
+                                        <td><div id="qiPurityUpgradeModule">--</div></td>
+                                        <td><div id="qiPurityCost">--</div></td>
                                     </tr>
                                     <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiRegenUpgradeModule" onclick="game.inspect('regen')">--</div></td>
-                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('regen')"></div><div id="qiRegenCost">--</div></td>
-                                    </tr>
-                                    <tr class="royalRoadTR upgradeModule">
-                                        <td>Skills</td>
-                                        <td>Cost</td>
-                                    </tr>
-                                    <tr class="royalRoadTR upgradeModule">
-                                        <td><div id="qiConversionUpgradeModule" onclick="game.inspect('qiConversion')">--</div></td>
-                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion')"></div><div id="qiConversionCost">--</div></td>
+                                        <td><div id="qiRegenUpgradeModule">--</div></td>
+                                        <td><div id="qiRegenCost">--</div></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div class="menu-display">
-                            <div class="downloadButton" onclick="character.export()" style="float:right;">Download Character</div>
-                        </div>
-                        <div class="inspect-display">
-                            <!-- Will auto-fill with stuff when you click on inspectable things! (Or starts in with a tutorial?) -->
-                            <div>
-                                <table class="inspect-display-type">
-                                    <tr>
-                                        <td colspan="2" style="text-align: center;" id="inspectName">
-                                            Tutorial
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Type: </td>
-                                        <td id="inspectType">"Quest"</td>
-                                    </tr>
-                                </table>
-                                <div style="margin:5px;">
-                                    <div style="float:left;">Description: </div>
-                                    <div id="inspectDescription">
-                                        To play, click the "Generate" button in the bottom right to make resources, and the "Convert" once you have at least 100g of it to gain System Points!
-                                        Exchange your System Points in the "Upgrade Module" in the System Display in the top left to get stronger! 
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="inspectExtra" class="inspect-bottom-display">
-                                Reward: You learned how to play!
-                            </div>
-                        </div>
+                        <div class="menu-display"><img src="../Assets/sheet20.png" class="clickable" onclick="character.export()"></div>
+                        <div class="inspect-display">Four</div>
                         <div class="inventory-display">
                             <table class="inventory">
                                 <tr>
-                                    <th class="resourceCount">Convert</th>
-                                    <th class="resourceCount">Generate</th>
-                                    <th class="resourceCount">Stored</th>
+                                    <th>Convert</th>
+                                    <th>Generate</th>
+                                    <th>Stored</th>
                                     <th></th>
                                 </tr>
-                                <tr id="tier2Resource">
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(2)"></td>
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(2)"></td>
-                                    <td id="sSSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_02.png" onclick="game.inspect('res2')"></td>
+                                <tr style="display:none;">
+                                    <td>Convert</td>
+                                    <td>Generate</td>
+                                    <td class="resourceCount">*error*</td>
+                                    <td><img src="../Assets/material_02.png"></td>
                                 </tr>
-                                <tr id="tier1Resource">
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(1)"></div></td>
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(1)"></div></td>
+                                <tr>
+                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(1)"></td>
+                                    <td><img src="../Assets/sq19_up.png" onclick="game.startProg1(1)"></td>
                                     <td id="sSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_01.png" onclick="game.inspect('res1')"></td>
+                                    <td><img src="../Assets/material_01.png"></td>
                                 </tr>
                                 <tr>
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="character.exchange(0)"></div></td>
-                                    <td><div class="sys-upgrade-btn" style="margin-left:40%;" onclick="game.startResBar(0)"></div></td>
+                                    <td><img src="../Assets/sq20_up.png" onclick="character.exchange(0)"></td>
+                                    <td><img src="../Assets/sq19_up.png" onclick="game.startProg1(0)"></td>
                                     <td id="iSSlCount" class="resourceCount">*error*</td>
-                                    <td><img src="../Assets/material_16.png" onclick="game.inspect('res0')"></td>
+                                    <td><img src="../Assets/material_16.png"></td>
                                 </tr>
-                            </table>
-                        </div>
-                        <div class="event-display">
-                            <table id="eventLog" class="event-table">
-                            <!-- Example message layout!  (add classes to make them actually *LOOK* nice too)
-                                <tr>
-                                    <td>
-                                        Test:
-                                    </td>
-                                    <td>
-                                        Message 1
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        Test Log:
-                                    </td>
-                                    <td>
-                                        Message 2
-                                    </td>
-                                </tr>
-                            -->
                             </table>
                         </div>
                     </div>
