@@ -4,6 +4,8 @@ body{
     user-select: none;
     margin: 0;
     padding: 0;
+    font-family: Copperplate, Papyrus, Sans-serif;
+    color: #bdbdbd;
 }
 #wrapper {
     position: absolute;
@@ -78,6 +80,7 @@ body{
     font-size: medium;
     color: white;
 }
+
 /* Overall Grid Display */
 .main-display { grid-area: display; }
 .system-display { 
@@ -95,13 +98,12 @@ body{
     grid-area: inspect; 
     background-color: #101424;
     border: 1px solid #bdbdbd;
-    border-radius: 5px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
     border-bottom: none;
-    color: #bdbdbd;
     text-align: left;
     overflow: auto;
     word-wrap: break-word;
-    font-family: Copperplate, Papyrus, Sans-serif;
     display:flex;
     flex-direction: column;
     justify-content: space-between;
@@ -132,18 +134,59 @@ body{
 .inspectExtra td:first-child {
     border-left:none;
 }
+.event-display {
+    grid-area: eventD; 
+    display: flex;
+    overflow: auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    border: 1px solid #bdbdbd;
+    background-color: #101424;
+    border-bottom: none;
+    border-left: none;
+    border-top-right-radius: 5px;
+    width: 100%;
+    height: 100%;
+}
+.event-table {
+    border-collapse: collapse;
+    padding: 5px;
+    border-spacing: 0px;
+    width:100%;
+    overflow-y:visible;
+    min-height: inherit;
+}
+.event-table tr {
+    padding:0px;
+    width:100%;
+    text-align: left;
+    border-top: 1px solid #6b6b6b;
+}
+.event-table tr td:first-child {
+    font-weight:900;
+    font-size: small;
+    width:fit-content;
+    white-space: nowrap;
+}
+.event-table tr td:last-child {
+    font-size: small;
+    width:100%;
+    word-wrap: break-word;
+}
 .grid-container {
     display: grid;
     padding:0;
     grid-template-areas: 
     'systemD display menuD'
     'systemD display inventory'
-    'systemD inspect inventory';
+    'eventD inspect inventory';
     grid-template-columns: 1fr 3fr 1fr;
     grid-template-rows: 1fr 2fr 2fr;
     gap: 5px;
     height:100%;
 }
+
 /* Table Data */
 .royalRoadTable {
     border-collapse: collapse;
@@ -184,7 +227,6 @@ body{
 }
 
 /* Game Settings Screen */
-/* Major Section */
 #settingsscreen {
     text-align: center;
 }

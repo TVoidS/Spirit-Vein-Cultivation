@@ -32,6 +32,9 @@ const game = {
         // Setup the inspection ability
         setup.inspection();
 
+        // Connect the Event Log
+        game.eventLog = document.getElementById("eventLog");
+
         // Create the Character object
         if(type == 'new') {
             // if the init was called via the "New Game" button
@@ -304,6 +307,11 @@ const game = {
             }
         }
 
+    },
+
+    // Registers an event on the Event Log
+    registerEvent: function(event, message) {
+        game.eventLog.innerHTML += "<tr><td>" + event + ":</td><td>" + message + "</td></tr>";
     }
 }
 
