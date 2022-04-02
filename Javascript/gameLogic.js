@@ -893,7 +893,7 @@ const quests = {
 
                 if(newQuest) {
                     // Register an event, and add the quest to the player!
-                    game.registerEvent("New Quest", quests.q[quest].display_name);
+                    game.registerEvent("New Quest", "["+quests.q[quest].display_name)+"]";
                     character.sheet.quest[quest] = quests.q[quest];
                     character.sheet.quest[quest].status = "active";
                     game.updateQuestDisplay(quest);
@@ -949,7 +949,7 @@ const quests = {
                     // Skills? Modules? TODO, add those rewards!
 
                     game.updateQuestDisplay();
-                    game.registerEvent("Quest Complete", "You just completed [" + quest.q[quest].display_name + "]!");
+                    game.registerEvent("Quest Complete", "You just completed [" + quests.q[quest].display_name + "]!");
                     if(game.qdExpanded) {
                         game.toggleQuestD();
                     }
