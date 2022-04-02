@@ -137,22 +137,21 @@ body{
 .event-display {
     grid-area: eventD; 
     display: flex;
-    overflow: auto;
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: flex-end;
     border: 1px solid #bdbdbd;
     background-color: #101424;
+    border-top-right-radius: 5px;
     border-bottom: none;
     border-left: none;
-    border-top-right-radius: 5px;
     width: 100%;
-    height: 100%;
-    padding-bottom: 5px;
+    height: auto;
+    overflow-y: auto;
 }
 .event-table {
     border-collapse: collapse;
-    padding: 5px;
+    margin-bottom: 5px;
     border-spacing: 0px;
     width:100%;
     overflow-y:visible;
