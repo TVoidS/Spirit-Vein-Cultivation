@@ -152,6 +152,9 @@ const game = {
 
                 // Tell the system what tier is being made!
                 game.mat_tier = tier;
+
+                // We just did a thing, remember that!
+                character.sheet.tracking.qiConversion++;
             }
         } else {
             // TODO: Turn this into an Inspect Screen, or maybe leave it as a potential Error message?
@@ -442,6 +445,10 @@ const character = {
                     res8: false,
                     res9: false
                 }
+            },
+            tracking: {
+                qiConversion: 0,
+                exchange: 0
             }
         };
         if(data == 'new') {
@@ -520,6 +527,8 @@ const character = {
 
             // We updated the inventory, so update related display components!
             game.updateInventoryCounts();
+            // HE DID A THING, HE DID A THING!
+            character.sheet.tracking.exchange++;
         }
     }
 }
@@ -539,36 +548,26 @@ const rates = {
     // Calculates the return value that would be generated for a given mat_tier.
     calculateReturn: function(mat_tier) {
         var tiers = {
-            0: {
-                req_tier: 0, // The required Purity Tier to efficiently produce the material
-                amt_per_grade: 10, // The amount of increase to production a Purity Grade effects when we are efficiently producing the material
-                exd_tier_mult: .5 // The bonus gained by being TOO PURE in tier.  this is (1 + exd_tier_mult)*(how far we exceed by)
-            },
-            1: { // Leaving this the same as tier 0, except for req_tier for now, as I don't think they are actually different.  May reduce the code later to represent this.
-                req_tier: 1,
-                amt_per_grade: 10,
-                exd_tier_mult: .5
-            },
-            2: {
-                req_tier: 2,
-                amt_per_grade: 10,
-                exd_tier_mult: .5
-            }
+            0: 0, // Inferior Spirit Slag
+            1: 1, // Spirit Slag
+            2: 2, // Superior Spirit Slag
+            3: 4 // 
         }
 
-        // saves me some typing!
-        // Retrieves the grade of purity
-        // var grade = character.sheet.stats.purity%10;
-        // Retrieves the Tier of purity
-        // var tier = ( character.sheet.stats.purity - grade ) / 10;
-
-        var pureCheck = (character.sheet.stats.purity+1-(10*tiers[mat_tier].req_tier));
+        var pureCheck = (character.sheet.stats.purity-(10*tiers[mat_tier]))+1;
         if (pureCheck > 0) {
-            var ret = pureCheck*tiers[mat_tier].amt_per_grade;
+            // Grey Magik
+            let pureGrade = pureCheck%10;
+            pureCheck -= pureGrade;
+            let pureTier = pureCheck/10;
+            let ret = pureGrade*fibbo.getMeMyCost(pureTier+2)*10;
+            if(fibbo.avg_f2[pureTier-1]){
+                ret += (pureCheck*fibbo.avg_f2[pureTier-1]*10)
+            }
             return ret;
-        } else if (pureCheck > -10){
+        } else if (pureCheck > -9){
             pureCheck--;
-            var ret = (tiers[mat_tier].amt_per_grade)+pureCheck;
+            var ret = 10+pureCheck;
             return ret;
         } else {
             return 0;
@@ -729,7 +728,28 @@ const fibbo = {
         FastDoubling(num, res);
 
         return res[0];
-    }
+    },
+    avg_f2: [ // Average values of Fibbo numbers starting from the second 1. Used primarily in calculating returns  hopefully we won't need more than tier 20?  Hopefully???
+        1,
+        1.5,
+        2,
+        2.75,
+        3.8,
+        5+(1/3),
+        (53/7),
+        10.875,
+        15+(7/9),
+        23.1,
+        (375/11),
+        50+(2/3),
+        (985/13),
+        (1595/14),
+        (2582/15),
+        (4179/16),
+        (6763/17),
+        608,
+        (17709/19)
+    ]
 }
 
 const inspection = {
@@ -782,6 +802,22 @@ const inspection = {
     res2: {
         name: "Superior Spirit Slag",
         type: "Resource",
-        desc: "Heavily energized blue powder.  This slag is so potent, that it is capable of emulating years of growth in hours.  Needless to say, many sects would fight over a reliable source."
+        desc: "If Spirit Slag was just Inferior Spirit Slag in a better package, then Superior Spirit Slag is totally different. At this point, multiple people, especially alchemists and gardeners, would totally love to have Superior Spirit Slag on hand. Why, you might ask? Well, Superior Spirit Slag is actually closer to Spirit Stones compared to actual Spirit Slag. Sure, it's packaged the same way as the two previous products and has even better smelling perfume, but its effects are leagues apart compared to its previous variant.  Surprisingly, it's also used to cure hemorrhoids."
+    }
+}
+
+const quests = {
+    ml1: {
+        display_name: "Adjusting to a New Life",
+        requirements: {
+            qiConversion: 10,
+            exchange: 1
+        },
+        prereqs: {
+            qiConversion: 5
+        },
+        rewards: {
+            sp: 5
+        }
     }
 }
