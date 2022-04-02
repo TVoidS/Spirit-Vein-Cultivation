@@ -51,6 +51,7 @@ const game = {
 
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
+        game.questLoop = setInterval(quests.checkUnlocks, (game.baseTime * 2000))
     },
 
     // Primary GameLoop function!  This will repeate forever and eever and eeeeeeverrrr
@@ -153,9 +154,6 @@ const game = {
 
                 // Tell the system what tier is being made!
                 game.mat_tier = tier;
-
-                // We just did a thing, remember that!
-                character.sheet.tracking.qiConversion++;
             }
         } else {
             // TODO: Turn this into an Inspect Screen, or maybe leave it as a potential Error message?
@@ -175,6 +173,7 @@ const game = {
             // but if it is the active tab, use the normal fill-rate.
             game.res_bar_prog++;
         }
+
         if(game.res_bar_prog >= rates.time.convert[game.mat_tier]) {
             // If the bar IS full or over-full,
 
@@ -188,6 +187,9 @@ const game = {
             
             // Update the Inventory Counts display!
             game.updateInventoryCounts();
+        
+            // We just did a thing, remember that!
+            character.sheet.tracking.qiConversion++;
         }
         game.spiritSlagProgBar.style.width = ((game.res_bar_prog/rates.time.convert[game.mat_tier])*100) + "%";
     },
@@ -324,6 +326,7 @@ const game = {
     },
 
     // makes a call to inspect an item, and updates the related Inspection Display
+    // TODO: transfer this to the inspect object.
     inspect: function(target) {
         // If the target exists
         if(inspection[target]){
@@ -356,9 +359,24 @@ const game = {
     // Registers an event on the Event Log
     registerEvent: function(event, message) {
         game.eventLog.innerHTML += "<tr><td>" + event + ":</td><td>" + message + "</td></tr>";
+    }, 
+
+    // Handles the addition of new Quests to the Quest Display!
+    updateQuestDisplay: function() {
+        // Just re-display everything (a quest Status might have changed?)
+        const elements = document.getElementsByClassName("quest");
+        while(elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+        let temp = "";
+        for (const qes in character.sheet.quest) {
+            // TODO: Add the onclick inspect function for each quest!
+            temp += '<tr class="questModule quest"><td>' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
+        }
+        game.questsDisplay.insertAdjacentHTML("afterend", temp);
     }
 }
-
 
 // This object is for connection forming, and constant data loading.  NOT FOR CHARACTER SETUP
 const setup = {
@@ -436,6 +454,7 @@ const setup = {
         game.qdExpanded = false;
         game.sysQdMod = document.getElementsByClassName("questModule");
         game.qdExp = document.getElementById("questExpand");
+        game.questsDisplay = document.getElementById("quests");
     }
 }
 
@@ -458,7 +477,6 @@ const character = {
                 qiConversion: 1 // TODO: MORE SKILLS
             },
             quest: {
-                // TODO: MAKE QUESTS
             },
             thresholds: {
                 qiConversion: {
@@ -834,17 +852,162 @@ const inspection = {
 }
 
 const quests = {
-    ml1: {
-        display_name: "Adjusting to a New Life",
-        requirements: {
-            qiConversion: 10,
-            exchange: 1
+    checkUnlocks: function() {
+        let keys = Object.keys(quests.q);
+
+        // Check each quest...
+        keys.forEach(quest => {
+            let newQuest = true;
+            // If the player doesn't already ave the quest...
+            if(!character.sheet.quest.hasOwnProperty(quest)) {
+
+                // Check what prereqs exist
+                if(quests.q[quest].prereqs.stats && quests.q[quest].prereqs.inventory && quests.q[quest].prereqs.tracking) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.inventory && quests.q[quest].prereqs.tracking) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.stats && quests.q[quest].prereqs.tracking) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.stats && quests.q[quest].prereqs.inventory) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.tracking) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.inventory) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                } else if(quests.q[quest].prereqs.stats) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+
+                if(newQuest) {
+                    // Register an event, and add the quest to the player!
+                    game.registerEvent("New Quest", quests.q[quest].display_name);
+                    character.sheet.quest[quest] = quests.q[quest];
+                    character.sheet.quest[quest].status = "active";
+                    game.updateQuestDisplay(quest);
+                }
+            }
+        });
+    },
+    q: {
+        ml1: {
+            display_name: "Adjusting to a New Life",
+            requirements: {
+                tracking: {
+                    qiConversion: 10,
+                    exchange: 1
+                }
+            },
+            prereqs: {
+                tracking: {
+                    qiConversion: 5
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 5
+                }
+            },
+            desc: ""
         },
-        prereqs: {
-            qiConversion: 5
-        },
-        rewards: {
-            sp: 5
+        ml2: {
+            display_name: "Makings of a True Spirit Vein (3)",
+            prereqs: {
+                // TODO: Make this branch *actually* exist
+                stats: {
+                    regen: 10
+                }
+            },
+            requirements: {
+                stats: {
+                    qiCap: 100
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 2500
+                }
+            }
         }
     }
 }
+
+// TODO: Create an Achievements object, or integrate it into the Quests object, as quests that don't have requirements?
