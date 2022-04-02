@@ -13,16 +13,14 @@ It should work, but the buttons won't appear
 
 ## TODO:
 ### Planned for SOON(TM):
-- Inspection Display
-- Text Log
 - Quests
+- Spirit Receptor Module (v1c18)
+
 
 ### Additions:
-- More skills!
-- Create Inspection display (displays details gained via the "Inspect" function)
-- Text Log for displaying updates, e.g. "Quest Unlocks" or other such things
 - QUESTS: Entire thing needs to be implemented!
-- "Spirit Accumulation Module" needs to be implemented
+- "Spirit Receptor Module" needs to be implemented
+- Knowledge Module! (This is not going to be anytime soon)
 - "Character Size" needs to be added and utilized!  Research into what it actually changes too!
 
 ### Changes: 
@@ -30,5 +28,6 @@ It should work, but the buttons won't appear
 - All of the Art and Graphics need to be modified and updated to something properly usable.
 
 ### Potential Additions:
+- More skills!
 - "Users" who are using your Spirit Aura to cultivate
 - "Total Produced" and "Total Used by Cultivators" to show how much of your produced resources have been picked up and used by cultivators
