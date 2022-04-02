@@ -22,6 +22,7 @@ const game = {
         //System Modules
         //Upgrade Module
         setup.systemUpgradeModule();
+        setup.systemQuestModule();
 
         // Stats Upgrades
         setup.characterStats();
@@ -192,7 +193,7 @@ const game = {
     },
 
     // Toggles the System Menu's Upgrade Module
-    toggleUpgrade: function() {
+    toggleUpgradeD: function() {
 
         // Check if the menu is open yet or not
         if(!game.upExpanded) {
@@ -222,6 +223,27 @@ const game = {
 
             // Update the recorded state!
             game.upExpanded = false;
+        }
+    },
+
+    // Toggles the System Menu's Quest Module
+    toggleQuestD: function () {
+        if(!game.qdExpanded) {
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "table-row";
+            }
+
+            game.qdExp.innerHTML = "--Close--";
+
+            game.qdExpanded = true;
+        } else {
+
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "none";
+            }
+
+            game.qdExp.innerHTML = "--Open--";
+            game.qdExpanded = false;
         }
     },
 
@@ -409,6 +431,11 @@ const setup = {
         game.inspectType = document.getElementById("inspectType");
         game.inspectDesc = document.getElementById("inspectDescription");
         game.inspectExt = document.getElementById("inspectExtra");
+    },
+    systemQuestModule: function() {
+        game.qdExpanded = false;
+        game.sysQdMod = document.getElementsByClassName("questModule");
+        game.qdExp = document.getElementById("questExpand");
     }
 }
 

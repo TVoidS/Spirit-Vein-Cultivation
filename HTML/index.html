@@ -34,42 +34,52 @@
                         <div class="system-display">
                             <table class="royalRoadTable">
                                 <tbody>
-                                    <tr class="royalRoadTR">
+                                    <tr>
                                         <td style="width:60%">Modules</td>
                                         <td style="width:35%"></td>
                                     </tr>
-                                    <tr class="royalRoadTR">
+                                    <tr>
                                         <td>System Points</td>
                                         <td id="systemPoints">*error*</td>
                                     </tr>
-                                    <tr class="royalRoadTR">
+                                    <tr>
                                         <td>Upgrade Module</td>
-                                        <td id="upgradeExpand" onclick="game.toggleUpgrade()">--Open--</td>
+                                        <td id="upgradeExpand" onclick="game.toggleUpgradeD()">--Open--</td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td>Stats</td>
                                         <td>Cost</td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td><div id="qiCapUpgradeModule" onclick="game.inspect('qiCap')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('qiCap')"></div><div id="qiCapCost">--</div></td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td><div id="qiPurityUpgradeModule" onclick="game.inspect('purity')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('purity')"></div><div id="qiPurityCost">--</div></td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td><div id="qiRegenUpgradeModule" onclick="game.inspect('regen')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('regen')"></div><div id="qiRegenCost">--</div></td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td>Skills</td>
                                         <td>Cost</td>
                                     </tr>
-                                    <tr class="royalRoadTR upgradeModule">
+                                    <tr class="upgradeModule">
                                         <td><div id="qiConversionUpgradeModule" onclick="game.inspect('qiConversion')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion')"></div><div id="qiConversionCost">--</div></td>
                                     </tr>
+                                    <tr>
+                                        <td>Quest Module</td>
+                                        <td id="questExpand" onclick="game.toggleQuestD()">--Open--</td>
+                                    </tr>
+                                    <div id="Test Div in Table">
+                                        <tr class="questModule">
+                                            <td>Something</td>
+                                            <td>Something2</td>
+                                        </tr>
+                                    </div>
                                 </tbody>
                             </table>
                         </div>

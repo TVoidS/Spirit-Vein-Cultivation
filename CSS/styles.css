@@ -201,11 +201,14 @@ body{
     width: 90%;
     text-align: left;
 }
-.royalRoadTR > td {
+.royalRoadTable tr td {
     border: 1px solid rgba(194, 224, 244, 1);
     padding: 5px;
 }
 .upgradeModule {
+    display: none;
+}
+.questModule {
     display: none;
 }
 .sys-upgrade-img {
