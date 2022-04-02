@@ -10,42 +10,31 @@ const game = {
         // The thing that allows time-based calculations to occur, and is able to adjust for the hidden tab problem!
         // Converts seconds to gameticks!
         game.secondConvert = (1000/timeStep);
-        game.baseTime = 1; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
+        game.baseTime = 12; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
-        // Initial values for the primary progress bar.
-        game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
-        game.res_bar = false;
-        game.res_bar_max = 1 * game.secondConvert;
-        game.res_bar_prog = 0;
-        game.mat_tier = 0;
+        // Initial values for the progress bars.
+        setup.bars();
 
-        // Secondary progress bar!  This is for the Qi Regen Timer!
-        game.regen_bar = document.getElementById("qi-regen-prog");
-        game.regen_prog = 0;
-
-        // retrieve the inventory counts
-        game.iSSlDisplay = document.getElementById("iSSlCount");
-        game.sSlDisplay = document.getElementById("sSlCount");
-        game.sPDisplay = document.getElementById("systemPoints");
+        // connect the character's inventory to the related display html
+        setup.inventory();
 
         //System Modules
         //Upgrade Module
-        
-        // General Display
-        game.sysUpMod = document.getElementsByClassName("upgradeModule");
-        game.upExp = document.getElementById("upgradeExpand");
-        game.upExpanded = false;
+        setup.systemUpgradeModule();
+        setup.systemQuestModule();
 
         // Stats Upgrades
-        game.qiCap = document.getElementById("qiCapUpgradeModule");
-        game.qiCapCost = document.getElementById("qiCapCost");
+        setup.characterStats();
 
-        game.purityD = document.getElementById("qiPurityUpgradeModule");
-        game.purityCost = document.getElementById("qiPurityCost");
+        // Skills Upgrades
+        setup.characterSkills();
 
-        game.regenD = document.getElementById("qiRegenUpgradeModule");
-        game.regenCost = document.getElementById("qiRegenCost");
+        // Setup the inspection ability
+        setup.inspection();
+
+        // Connect the Event Log
+        game.eventLog = document.getElementById("eventLog");
 
         // Create the Character object
         if(type == 'new') {
@@ -57,8 +46,12 @@ const game = {
             character.init(type);
         }
 
+        // Welcome them to the game!
+        game.registerEvent('Welcome', 'Welcome to the Spirit Vein Idle game!  Make sure to keep up with the story on Royal Road!');
+
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
+        game.questLoop = setInterval(quests.checkQuests, (10000)); 
     },
 
     // Primary GameLoop function!  This will repeate forever and eever and eeeeeeverrrr
@@ -71,43 +64,66 @@ const game = {
         if(game.res_bar) {
             game.updateResourceBar();
         }
+    },
 
-        // Only runs if the Character Inventory has been updated
-        if(character.updatedInv) {
+    // Handles everything related to the numbers on the inventory display!
+    updateInventoryCounts: function() {
+        // Update the inventory displays!
+        game.iSSlDisplay.innerHTML = character.sheet.inventory[0];
+        game.sSlDisplay.innerHTML = character.sheet.inventory[1];
+        game.sSSlDisplay.innerHTML = character.sheet.inventory[2];
+        game.sPDisplay.innerHTML = character.sheet.inventory.sp;
+    },
 
-            // Update the inventory displays!
-            game.iSSlDisplay.innerHTML = character.sheet.inventory[0];
-            game.sSlDisplay.innerHTML = character.sheet.inventory[1];
-            game.sPDisplay.innerHTML = character.sheet.inventory.sp;
-
-            // Mark the Inventory Displays as up-to-date!
-            character.updatedInv = false;
+    // When Qi Conversion rises, we need to handle this!
+    updateInventoryRows: function() {
+        if (!character.sheet.thresholds.qiConversion.res1 && character.sheet.skills.qiConversion > 10) {
+            game.registerEvent("Unlock", "You just unlocked a new tier of resource!  Spirit Slag!  ... Don't look at me like that.  The descriptor 'Inferior' should have given this one away.");
+            // We just hit level 11, or far surpassed it!  We passed the threshold, so update, and move on
+            character.sheet.thresholds.qiConversion.res1 = true;
+            game.tier1Inventory.style = "display: table-row;";
         }
-
-        // Only if the character's stats have been marked as updated.
-        if(character.updatedStats) {
-
-            // Update the System Display's values for each of the main stats!
-            game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
-            game.qiCapCost.innerHTML = upgrades.stats.qiCap[character.sheet.stats.qiCap];
-
-
-            // Helps with fancy writing
-            let rem = character.sheet.stats.purity%10;
-
-            game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
-            game.purityCost.innerHTML = upgrades.stats.purity[character.sheet.stats.purity];
-
-            game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
-            game.regenCost.innerHTML = upgrades.stats.regen[character.sheet.stats.regen];
-
-            // Update the gain rates for the resources!
-            // TODO: make this only update on Purity updates!
-            rates.calculateAllReturns();
-            
-            // Mark the Stats displays as up-to-date!
-            character.updatedStats = false;
+        if (!character.sheet.thresholds.qiConversion.res2 && character.sheet.skills.qiConversion > 20) {
+            game.registerEvent("Unlock", "You just unlocked SUPERIOR Spirit Slag.  Just like normal Spirit Slag, but blue!");
+            // We just hit level 21, or far surpassed it!  We passed the threshold, so update, and move on
+            character.sheet.thresholds.qiConversion.res2 = true;
+            game.tier2Inventory.style = "display: table-row;";
         }
+    },
+
+    // For the initial load of the Inventory Rows.  This is to fix problems when loading in as a saved character at high level
+    onLoadInventoryRows: function() {
+        if (character.sheet.skills.qiConversion > 10) {
+            // Display Tier 1 resources!
+            game.tier1Inventory.style = "display: table-row;";
+            if(character.sheet.skills.qiConversion > 20) {
+                game.tier2Inventory.style = "display: table-row;";
+                // add more for each tier of resource added!
+            }
+        }
+    },
+
+    // Handles all of the changes to the display of character stats!
+    updateCharacterStatDisplays: function() {
+        // Update the System Display's values for each of the main stats!
+        game.qiCap.innerHTML = "[Qi Capacity] - " + character.sheet.stats.currQi + "/" + character.sheet.stats.qiCap;
+        game.qiCapCost.innerHTML = upgrades.stats.qiCap.cost(character.sheet.stats.qiCap);
+
+        // Helps with fancy writing
+        let rem = character.sheet.stats.purity%10;
+
+        game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
+        game.purityCost.innerHTML = upgrades.stats.purity.cost(character.sheet.stats.purity);
+
+        game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+        game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
+    },
+
+    // Handles all changes to the Skill Displays.
+    updateCharacterSkillDisplays: function() {
+        // Update the Qi Conversion Skill display
+        game.qiConversion.innerHTML = "[Qi Conversion Lv. " + character.sheet.skills.qiConversion + "]";
+        game.qiConversionCost.innerHTML = upgrades.skills.qiConversion.cost(character.sheet.skills.qiConversion);
     },
 
     //Unused for now, but may find a use for it
@@ -126,60 +142,60 @@ const game = {
     // Processes all the information for the system to start making stuff!
     startResBar: function(tier) {
 
-        // TODO: Make this check for if the material is even unlocked!
-        if( ( character.sheet.stats.currQi > 0 ) && !game.res_bar) {
+        if ((character.sheet.skills.qiConversion/10) > tier) {
+            if( ( character.sheet.stats.currQi > 0 ) && !game.res_bar) {
 
-            // Tell the GameLoop that we need to update the progress bar now
-            game.res_bar = true;
+                // Tell the GameLoop that we need to update the progress bar now
+                game.res_bar = true;
 
-            // Decrement Qi from the character, as that is the cost of generating resources
-            character.sheet.stats.currQi--;
-            // TODO: make this update part of the function to decrement Qi
-            character.updatedStats = true;
+                // Decrement Qi from the character, as that is the cost of generating resources
+                character.sheet.stats.currQi--;
+                game.updateCharacterStatDisplays();
 
-            // Tell the system what tier is being made!
-            game.mat_tier = tier;
+                // Tell the system what tier is being made!
+                game.mat_tier = tier;
+            }
+        } else {
+            // TODO: Turn this into an Inspect Screen, or maybe leave it as a potential Error message?
+            console.log("Not strong enough!");
         }
     },
 
     // Replaces the updateres_bar() and updateres_barHidden() functions
     // Handles the progress of running materials!
     updateResourceBar: function() {
-        if(game.res_bar_prog < rates.time.convert[game.mat_tier]) {
-
-            // If the bar isn't full, or over-full, 
-            if(document.hidden) {
-                // If the tab isn't active, use enhanced fill-rate
-                game.res_bar_prog += game.secondConvert;
-            } else {
-                // but if it is the active tab, use the normal fill-rate.
-                game.res_bar_prog++;
-            }
-            
+        
+        // If the bar isn't full, or over-full, 
+        if(document.hidden) {
+            // If the tab isn't active, use enhanced fill-rate
+            game.res_bar_prog += game.secondConvert;
         } else {
+            // but if it is the active tab, use the normal fill-rate.
+            game.res_bar_prog++;
+        }
+
+        if(game.res_bar_prog >= rates.time.convert[game.mat_tier]) {
             // If the bar IS full or over-full,
 
             // Turn off further filling
             game.res_bar = false;
-
             // Set the bar's progress to 0
             game.res_bar_prog = 0;
 
             // Add more resources to the character's inventory 
-            // TODO: Offload any character sheet updates into the character object, so that the flag can be updated appropriately!
             character.sheet.inventory[game.mat_tier] += rates.gain[game.mat_tier];
-
-            // Debug log for my sanity, likely to be removed or commented out!
-            console.log("Spirit Slag: " + character.sheet.inventory[game.mat_tier]);
-
-            // Tell the game to update the display for the Inventory on the next opportunity!
-            character.updatedInv = true;
+            
+            // Update the Inventory Counts display!
+            game.updateInventoryCounts();
+        
+            // We just did a thing, remember that!
+            character.sheet.tracking.qiConversion++;
         }
         game.spiritSlagProgBar.style.width = ((game.res_bar_prog/rates.time.convert[game.mat_tier])*100) + "%";
     },
 
     // Toggles the System Menu's Upgrade Module
-    toggleUpgrade: function() {
+    toggleUpgradeD: function() {
 
         // Check if the menu is open yet or not
         if(!game.upExpanded) {
@@ -212,30 +228,50 @@ const game = {
         }
     },
 
+    // Toggles the System Menu's Quest Module
+    toggleQuestD: function () {
+        if(!game.qdExpanded) {
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "table-row";
+            }
+
+            game.qdExp.innerHTML = "--Close--";
+
+            game.qdExpanded = true;
+        } else {
+
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "none";
+            }
+
+            game.qdExp.innerHTML = "--Open--";
+            game.qdExpanded = false;
+        }
+    },
+
     // Handle everything related to Qi Regen, except updating the stats display when done!
     updateQiRegenBar: function() {
 
-        if ( game.regen_prog < rates.time.regen ) {
-            // If there is more to regen!0
-            if(document.hidden) {
-                // If the tab isn't active!
-                // We need to make more progress per tick if the tab isn't active!
-                game.regen_prog += game.secondConvert;
-            } else {
-                // If the tab IS active, just increment!
-                game.regen_prog++;
-            }
+        // If there is more to regen!0
+        if(document.hidden) {
+            // If the tab isn't active!
+            // We need to make more progress per tick if the tab isn't active!
+            game.regen_prog += game.secondConvert;
         } else {
+            // If the tab IS active, just increment!
+            game.regen_prog++;
+        }
+        if (game.regen_prog >= rates.time.regen) {
             // If we are full up!
             // And aren't full of Qi...
             if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
                 character.sheet.stats.currQi += character.sheet.stats.regen;
-                // We've updated something for the stats display!
-                character.updatedStats = true;
+                game.updateCharacterStatDisplays();
             } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
                 character.sheet.stats.currQi = character.sheet.stats.qiCap;
+                game.updateCharacterStatDisplays();
             }
             // Reset the progress of the bar!
             game.regen_prog = 0;
@@ -246,53 +282,227 @@ const game = {
 
     // Handles stat upgrade requests from the System UI
     upgradeStat: function(target) {
-
-        console.log("Attempted to upgrade: " + target);
         // check if we have the SP for the upgrade
-        console.log("upgradecost: " + upgrades.stats[target][character.sheet.stats[target]]);
-        if (character.sheet.inventory.sp >= upgrades.stats[target][character.sheet.stats[target]]) {
+        let cost = upgrades.stats[target].cost(character.sheet.stats[target]);
+        if (character.sheet.inventory.sp >= cost) {
             // We have enough! Yay!
 
             // SPEND IT!!!!
-            character.sheet.inventory.sp -= upgrades.stats[target][character.sheet.stats[target]];
+            character.sheet.inventory.sp -= cost;
             // Increment the stat!
             character.sheet.stats[target]++;
 
-            // Tell the GameLogic to render the changes!
-            character.updatedStats = true;
-            character.updatedInv = true;
+            if(target == 'purity') {
+                // Update the gain rates for the resources!
+                rates.calculateAllReturns();
+                rates.calculateTimes();
+            }
+
+            // Render the changes!
+            game.updateCharacterStatDisplays();
+            game.updateInventoryCounts();
         }
+    },
+
+    // Call this to request to update a skill!
+    upgradeSkill: function(target) {
+        // Check if we have enough System Points!
+        let cost = upgrades.skills[target].cost(character.sheet.skills[target]);
+        if(character.sheet.inventory.sp >= cost) {
+
+            // Spend the points, then upgrade the skill!
+            character.sheet.inventory.sp -= cost;
+            character.sheet.skills[target]++;
+
+            // Stuff updated!  RENDER IT
+            game.updateCharacterSkillDisplays();
+            game.updateInventoryCounts();
+
+            if(target == 'qiConversion') {
+                rates.calculateTimes();
+                game.updateInventoryRows();
+            }
+        }
+    },
+
+    // makes a call to inspect an item, and updates the related Inspection Display
+    // TODO: transfer this to the inspect object.
+    inspect: function(target) {
+        // If the target exists
+        if(inspection[target]){
+            // Update common items
+            game.inspectName.innerHTML = inspection[target].name;
+            game.inspectType.innerHTML = inspection[target].type;
+            game.inspectDesc.innerHTML = inspection[target].desc;
+
+            // Check for what the "Extra" display would be used for!
+
+            if(inspection[target].upg_desc) {
+                // There will be an array of objects here
+                var out = '<table class="inspectExtra">'
+                for(let i = 0; i < inspection[target].upg_desc.length; i++) {
+                    // Add a <td> </td> per item?
+                    out += "<td>" + inspection[target].upg_desc[i] + "</td>";
+                }
+                out += "</table>";
+                game.inspectExt.style.display = "block";
+                game.inspectExt.innerHTML = out;
+            } else {
+                // No bonus content found, hide the thingy!
+                game.inspectExt.style.display = "none";
+                game.inspectExt.innerHTML = "";
+            }
+        }
+
+    },
+
+    // Registers an event on the Event Log
+    registerEvent: function(event, message) {
+        game.eventLog.innerHTML += "<tr><td>" + event + ":</td><td>" + message + "</td></tr>";
+    }, 
+
+    // Handles the addition of new Quests to the Quest Display!
+    updateQuestDisplay: function() {
+        // Just re-display everything (a quest Status might have changed?)
+        const elements = document.getElementsByClassName("quest");
+        while(elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+        let temp = "";
+        for (const qes in character.sheet.quest) {
+            // TODO: Add the onclick inspect function for each quest!
+            temp += '<tr class="questModule quest"><td>' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
+        }
+        game.questsDisplay.insertAdjacentHTML("afterend", temp);
+    }
+}
+
+// This object is for connection forming, and constant data loading.  NOT FOR CHARACTER SETUP
+const setup = {
+    bars: function() {
+        // Main resource bar setup
+        game.spiritSlagProgBar = document.getElementById("spirit-slag-prog");
+
+        // Whether the bar is active or not (you just opened the game, of course it's off!);
+        game.res_bar = false;
+
+        // the progress of the resource bar, higher = closer to done
+        game.res_bar_prog = 0;
+
+        // The tier of resource being produced.  Used to make sure we are calculating against the right time and at the right pace.
+        game.mat_tier = 0;
+
+        // Qi Regen Bar setup
+        game.regen_bar = document.getElementById("qi-regen-prog");
+        game.regen_prog = 0;
+    },
+    inventory: function() {
+        // Inferior Spirit Slag
+        game.iSSlDisplay = document.getElementById("iSSlCount");
+        // Spirit Slag
+        game.sSlDisplay = document.getElementById("sSlCount");
+        // Superior Spirit Slag
+        game.sSSlDisplay = document.getElementById("sSSlCount");
+        // System Points
+        game.sPDisplay = document.getElementById("systemPoints");
+
+        // Inventory Row Display objects
+        game.tier1Inventory = document.getElementById("tier1Resource");
+        game.tier2Inventory = document.getElementById("tier2Resource");
+
+        // Start the rows as invisible! (they become visible when we unlock them, but we just booted up, so they will start invis)
+        game.tier1Inventory.style = "display: none;";
+        game.tier2Inventory.style = "display: none;";
+    },
+    systemUpgradeModule: function() {
+        // The array of all elements that are considered parts of the Upgrade Module (attatches them to the toggle)
+        game.sysUpMod = document.getElementsByClassName("upgradeModule");
+        // The Open/Close item that handles the onclick for the Upgrade Module
+        game.upExp = document.getElementById("upgradeExpand");
+        // The flag to help us track if the module is open or not.
+        game.upExpanded = false;
+    },
+    characterStats: function() {
+        // Connect to the Qi Capacity HTML objects
+        game.qiCap = document.getElementById("qiCapUpgradeModule");
+        game.qiCapCost = document.getElementById("qiCapCost");
+
+        // Connect to the Qi Purity HTML objects
+        game.purityD = document.getElementById("qiPurityUpgradeModule");
+        game.purityCost = document.getElementById("qiPurityCost");
+
+        // Connect to the Qi Regeneration HTML objects
+        game.regenD = document.getElementById("qiRegenUpgradeModule");
+        game.regenCost = document.getElementById("qiRegenCost");
+    },
+    characterSkills: function() {
+        // Connect to the Qi Conversion display HTML objects
+        game.qiConversion = document.getElementById("qiConversionUpgradeModule");
+        game.qiConversionCost = document.getElementById("qiConversionCost");
+
+        // This is where other skills would go when added!
+    },
+    // Handles connection to the Inspection Display pieces.
+    inspection: function() {
+        game.inspectName = document.getElementById("inspectName");
+        game.inspectType = document.getElementById("inspectType");
+        game.inspectDesc = document.getElementById("inspectDescription");
+        game.inspectExt = document.getElementById("inspectExtra");
+    },
+    systemQuestModule: function() {
+        game.qdExpanded = false;
+        game.sysQdMod = document.getElementsByClassName("questModule");
+        game.qdExp = document.getElementById("questExpand");
+        game.questsDisplay = document.getElementById("quests");
     }
 }
 
 const character = {
     init: function(data) {
+        let temp_sheet = {
+            inventory: {
+                sp: 0,
+                0: 0,
+                1: 0,
+                2: 0
+            },
+            stats: {
+                qiCap: 10,
+                currQi: 10,
+                purity: 0,
+                regen: 1
+            },
+            skills: {
+                qiConversion: 1 // TODO: MORE SKILLS
+            },
+            quest: {
+            },
+            thresholds: {
+                qiConversion: {
+                    res1: false,
+                    res2: false,
+                    res3: false,
+                    res4: false,
+                    res5: false,
+                    res6: false,
+                    res7: false,
+                    res8: false,
+                    res9: false
+                }
+            },
+            tracking: {
+                qiConversion: 0,
+                exchange: 0
+            }
+        };
         if(data == 'new') {
             // Sanity check console log!
             console.log("registered new character");
 
             // This is the Character Sheet.  Keeps track of ALL the data that is saved!
             // This is to make saving and loading *REALLY* easy for me!
-            character.sheet = {
-                inventory: {
-                    sp: 0,
-                    0: 0,
-                    1: 0,
-                    2: 0
-                },
-                stats: {
-                    qiCap: 10,
-                    currQi: 10,
-                    purity: 0,
-                    regen: 1
-                },
-                skills: {
-                    qiConversion: 1 // TODO: MORE SKILLS
-                },
-                quest: {
-                    // TODO: MAKE QUESTS
-                }
-            }
+            character.sheet = temp_sheet;
         } else {
 
             // This is the "Load Character" portion of the init!
@@ -301,15 +511,24 @@ const character = {
             // Sanity check console log!
             console.log(character.sheet);
 
-            // TODO: SAVE VERIFICATION AND UPDATING!
+            // Save checking!
+            let keys = Object.keys(temp_sheet);
+            keys.forEach(element => {
+                if(!character.sheet.hasOwnProperty(element)) {
+                    // We don't got that here, we got:
+                    character.sheet[element] = temp_sheet[element];
+                }
+            });
         }
 
         //Make sure to start up the rates object, or you'd never get any Spirit Slag in the first place!
         rates.init();
 
         // Make it so the display values are updated to be correct!
-        character.updatedInv = true;
-        character.updatedStats = true;
+        game.updateInventoryCounts();
+        game.onLoadInventoryRows();
+        game.updateCharacterStatDisplays();
+        game.updateCharacterSkillDisplays();
     },
 
     // Exports the character.sheet object for future loading!
@@ -352,17 +571,18 @@ const character = {
             character.sheet.inventory.sp += quantity * rates.conversion[tier];
 
             // We updated the inventory, so update related display components!
-            character.updatedInv = true;
+            game.updateInventoryCounts();
+            // HE DID A THING, HE DID A THING!
+            character.sheet.tracking.exchange++;
         }
-    },
-    updatedInv: false, // For if the inventory is updated
-    updatedStats: false // For if any of the character stats are updated.
+    }
 }
 
 // Stores the rates of resource generation
 const rates = {
     init: function() {
 
+        rates.timePartition = game.baseTime/12;
         // Create the rates on game start/load
         rates.calculateAllReturns();
 
@@ -373,36 +593,29 @@ const rates = {
     // Calculates the return value that would be generated for a given mat_tier.
     calculateReturn: function(mat_tier) {
         var tiers = {
-            0: {
-                req_tier: 0, // The required Purity Tier to efficiently produce the material
-                amt_per_grade: 10, // The amount of increase to production a Purity Grade effects when we are efficiently producing the material
-                exd_tier_mult: .5 // The bonus gained by being TOO PURE in tier.  this is (1 + exd_tier_mult)*(how far we exceed by)
-            },
-            1: { // Leaving this the same as tier 0, except for req_tier for now, as I don't think they are actually different.  May reduce the code later to represent this.
-                req_tier: 1,
-                amt_per_grade: 10,
-                exd_tier_mult: .5
-            }
+            0: 0, // Inferior Spirit Slag
+            1: 1, // Spirit Slag
+            2: 2, // Superior Spirit Slag
+            3: 4 // 
         }
 
-        // saves me some typing!
-        // Retrieves the grade of purity
-        var grade = character.sheet.stats.purity%10;
-        // Retrieves the Tier of purity
-        var tier = ( character.sheet.stats.purity - grade ) / 10;
-
-        // Check if we have the required purity tier!
-        if ( tier >= tiers[mat_tier].req_tier ) {
-            // If we have the required tier, we can multiply the product by how much we exceed it by!
-            // If we match it, we don't get any bonus
-            
-            var ret = ( ( ( tier - tiers[mat_tier].req_tier ) * tiers[mat_tier].exd_tier_mult ) + 1 ) * ( ( grade + 1 ) * tiers[mat_tier].amt_per_grade );
+        var pureCheck = (character.sheet.stats.purity-(10*tiers[mat_tier]))+1;
+        if (pureCheck > 0) {
+            // Grey Magik
+            let pureGrade = pureCheck%10;
+            pureCheck -= pureGrade;
+            let pureTier = pureCheck/10;
+            let ret = pureGrade*fibbo.getMeMyCost(pureTier+2)*10;
+            if(fibbo.avg_f2[pureTier-1]){
+                ret += (pureCheck*fibbo.avg_f2[pureTier-1]*10)
+            }
+            return ret;
+        } else if (pureCheck > -9){
+            pureCheck--;
+            var ret = 10+pureCheck;
             return ret;
         } else {
-            // Must divide the production by 10 times the amount we fail to match by
-            // This value is completely arbitrary and has no real meaning. But i like it.
-            var ret = ( ( grade + 1 ) * tiers[mat_tier].amt_per_grade ) / ( ( tiers[mat_tier].req_tier - tier ) * 10 );
-            return ret;
+            return 0;
         }
     },
 
@@ -411,17 +624,18 @@ const rates = {
         // Create the rates.gain object that will be the quick reference for how much of a resource to generate each time the bar fills
         rates.gain = {
             0: rates.calculateReturn(0),
-            1: rates.calculateReturn(1)
+            1: rates.calculateReturn(1),
+            2: rates.calculateReturn(2)
         }
     },
 
     // Sets the time it takes for each progress bar action!
     calculateTimes: function() {
-        // TODO: make this create the rates.time object!
         rates.time = {
             convert: {
                 0: rates.calculateConversionTime(0),
-                1: rates.calculateConversionTime(1)
+                1: rates.calculateConversionTime(1),
+                2: rates.calculateConversionTime(2)
             },
             regen: game.baseTime*game.secondConvert,
         };
@@ -429,44 +643,41 @@ const rates = {
 
     // Calculates how long it takes for the character to convert Qi to a given tier of resource
     calculateConversionTime: function(tier) {
-        // Get the purity grade and tier from the character sheet!
-        let purity_grade = character.sheet.stats.purity%10;
-        let purity_tier = character.sheet.stats.purity - purity_grade;
 
-        if ( purity_tier < tier ) {
-            // we don't have enough purity!  Cannot accelerate!
-            return game.baseTime*game.secondConvert;
-        } else if ( purity_tier == tier ) {
-            // Cut back by 1/12 of the time per grade gained in the correct tier
-            // Should match the story's progression closely
-            return (game.baseTime*game.secondConvert)*((12-purity_grade)/12);
+        // Check if purity matches or exceeds tier
+        // Check relation to qiConversion levels
+        if ((character.sheet.stats.purity) >= (tier*10)) {
+            // High enough purity!
+            if ((character.sheet.skills.qiConversion-10) > (tier*10)) {
+                // Exceeding tier by 10 levels of QiConversion!
+                // Speed cap reached
+                return 2*rates.timePartition*game.secondConvert;
+            } else {
+                // No exceeding anything here! do the complex calc for time taken!
+                let relLevel = (character.sheet.skills.qiConversion-1) - (tier*10);
+                return rates.timePartition*game.secondConvert*(12-relLevel);
+            }
         } else {
-            // 1/6 = 2/12.  This turns 60 minutes into 10 minutes!
-            // This is the same as is found in the story! yey
-            return (game.baseTime*game.secondConvert)/6;
+            // Not enough purity! Immediately take the most time possible!
+            return 2*game.baseTime*game.secondConvert;
         }
     },
 
     // Conversion rates from Mass to System Points for each material tier.
-    conversion: {
+    conversion: { // 100^(x-1)
         0: .01,
-        1: 1
+        1: 1,
+        2: 100
     }
 }
 
 // These costs are likely to be off by at *least* a little bit, and likely to be off by a wide margin the further into the story we get!
 const upgrades = {
     skills: {
-        qiConversion: { // Not 100% on this one
-            1: 1,
-            2: 1,
-            3: 2,
-            4: 3,
-            5: 5,
-            6: 8,
-            7: 13,
-            8: 21,
-            9: 34
+        qiConversion: { 
+            cost: function(num) {
+                return fibbo.getMeMyCost(num);
+            }
         },
         spiritAura: { // TODO: Figure out why I should implement this skill
             1: 1
@@ -476,84 +687,319 @@ const upgrades = {
         }
     },
     stats: {
-        qiCap: { // The story kinda skips over most of these values, as they are pretty much all the same, so I guessed as to the rate they increase.
-            10: 1,
-            11: 1,
-            12: 1,
-            13: 1,
-            14: 1,
-            15: 1,
-            16: 1,
-            17: 1,
-            18: 1,
-            19: 2,
-            20: 2,
-            21: 2,
-            22: 2,
-            23: 2,
-            24: 2,
-            25: 2,
-            26: 2,
-            27: 2,
-            28: 2,
-            29: 3,
-            30: 3,
-            31: 3,
-            32: 3,
-            33: 3,
-            34: 3,
-            35: 3,
-            36: 3,
-            37: 3,
-            38: 3,
-            39: 5,
-            40: 5,
-            41: 5,
-            42: 5,
-            43: 5,
-            44: 5,
-            45: 5,
-            46: 5,
-            47: 5,
-            48: 5,
-            49: 8,
-            50: 8,
-            51: 8,
-            52: 8,
-            53: 8,
-            54: 8,
-            55: 8,
-            56: 8,
-            57: 8,
-            58: 8,
-            59: 13,
-            60: 13,
-            61: 13,
+        qiCap: { 
+            cost: function(num) {
+                // Modify it so that it works for qiCap
+                num = (num+1)/10;
+                num -= num%1;
+                num++;
+
+                return fibbo.getMeMyCost(num);
+            }     
         },
         purity: {
-            0: 1,
-            1: 2,
-            2: 3,
-            3: 5,
-            4: 8,
-            5: 13,
-            6: 21,
-            7: 34,
-            8: 50,
-            9: 100,
-            10: 200 // Might be 100 again? Not sure
+            cost: function(num) {
+                // Modify to allow for purity
+                num+=2;
+
+                return fibbo.getMeMyCost(num);
+            }
         },
-        regen: { // Not sure about most of these costs, but guessed based off of the other stats
-            1: 10,
-            2: 20,
-            3: 30,
-            4: 50,
-            5: 80,
-            6: 130,
-            7: 210,
-            8: 340,
-            9: 500, 
-            10: 1000
+        regen: {
+            cost: function(num) {
+                num++;
+                return fibbo.getMeMyCost(num) * 10;
+            }
         }
     }
 }
+
+const fibbo = {
+    getMeMyCost: function(num) {
+        // Javascript program to find the Nth Fibonacci
+        // number using Fast Doubling Method
+
+        let a, b, c, d;
+        let MOD = 1000000000007;
+
+        // Function calculate the N-th fibanacci
+        // number using fast doubling method
+        function FastDoubling(n, res)
+        {
+            // Base Condition
+            if (n == 0) {
+                res[0] = 0;
+                res[1] = 1;
+                return;
+            }
+            FastDoubling(parseInt(n / 2, 10), res);
+
+            // Here a = F(n)
+            a = res[0];
+
+            // Here b = F(n+1)
+            b = res[1];
+
+            c = 2 * b - a;
+
+            if (c < 0) {
+                c += MOD;
+            }
+
+            // As F(2n) = F(n)[2F(n+1) – F(n)]
+            // Here c  = F(2n)
+            c = (a * c) % MOD;
+
+            // As F(2n + 1) = F(n)^2 + F(n+1)^2
+            // Here d = F(2n + 1)
+            d = (a * a + b * b) % MOD;
+
+            // Check if N is odd
+            // or even
+            if (n % 2 == 0) {
+                res[0] = c;
+                res[1] = d;
+            }
+            else {
+                res[0] = d;
+                res[1] = c + d;
+            }
+        }
+
+        // 1 1 2 3 5 8
+        let res = new Array(2);
+        res.fill(0);
+
+        FastDoubling(num, res);
+
+        return res[0];
+    },
+    avg_f2: [ // Average values of Fibbo numbers starting from the second 1. Used primarily in calculating returns  hopefully we won't need more than tier 20?  Hopefully???
+        1,
+        1.5,
+        2,
+        2.75,
+        3.8,
+        5+(1/3),
+        (53/7),
+        10.875,
+        15+(7/9),
+        23.1,
+        (375/11),
+        50+(2/3),
+        (985/13),
+        (1595/14),
+        (2582/15),
+        (4179/16),
+        (6763/17),
+        608,
+        (17709/19)
+    ]
+}
+
+const inspection = {
+    qiConversion: {
+        name: "Qi Conversion",
+        type: "Skill",
+        desc: "This converts your Qi into various resources.  Make sure to click the Generate buttons in the bottom right to get it going!",
+        upg_desc: [
+            "Makes your best tier resource faster",
+            "Unlocks new resources"
+        ]
+    },
+    qiCap: {
+        name: "Qi Capacity",
+        type: "Stat",
+        desc: "This stat governs how much qi you have in reserve! Higher values mean you take longer to run dry!",
+        upg_desc: [
+            "+1 Qi per level!",
+            "May help you Unlock certain things"
+        ]
+    },
+    purity: {
+        name: "Qi Purity",
+        type: "Stat",
+        desc: "This stat governs how much your Qi means, and how dense it is.  This is almost directly comparable to your cultivation realm!",
+        upg_desc: [
+            "+10g produced for the related tier of resource per grade",
+            "May help you unlock certain things"
+        ]
+    },
+    regen: {
+        name: "Qi Regeneration",
+        type: "Stat",
+        desc: "This stat determines how much Qi you get back every time your Qi Regeneration bar (blue) fills.",
+        upg_desc: [
+            "+1 Qi per bar fill per level",
+            "May help you unlock certain things"
+        ]
+    },
+    res0: {
+        name: "Inferior Spirit Slag",
+        type: "Resource",
+        desc: "Little more than energized shit, this is a great fertilizer.  Quite poisonous to humans and other living creatures. Appears to be a gray powder."
+    },
+    res1: {
+        name: "Spirit Slag",
+        type: "Resource",
+        desc: "Quite a bit better than it's 'Inferior' version, this white powder is rather expensive, and greatly accellerates the growth of both normal, and medicinal plants"
+    },
+    res2: {
+        name: "Superior Spirit Slag",
+        type: "Resource",
+        desc: "If Spirit Slag was just Inferior Spirit Slag in a better package, then Superior Spirit Slag is totally different. At this point, multiple people, especially alchemists and gardeners, would totally love to have Superior Spirit Slag on hand. Why, you might ask? Well, Superior Spirit Slag is actually closer to Spirit Stones compared to actual Spirit Slag. Sure, it's packaged the same way as the two previous products and has even better smelling perfume, but its effects are leagues apart compared to its previous variant.  Surprisingly, it's also used to cure hemorrhoids."
+    }
+}
+
+const quests = {
+    checkQuests: function() {
+        let keys = Object.keys(quests.q);
+
+        // Check each quest...
+        keys.forEach(quest => {
+            let newQuest = true;
+            // If the player doesn't already have the quest...
+            if(!character.sheet.quest.hasOwnProperty(quest)) {
+                if(quests.q[quest].prereqs.stats) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+                if(quests.q[quest].prereqs.inventory && newQuest) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+                if(quests.q[quest].prereqs.tracking && newQuest) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+
+                if(newQuest) {
+                    // Register an event, and add the quest to the player!
+                    game.registerEvent("New Quest", quests.q[quest].display_name);
+                    character.sheet.quest[quest] = quests.q[quest];
+                    character.sheet.quest[quest].status = "active";
+                    game.updateQuestDisplay(quest);
+
+                    if(game.qdExpanded) {
+                        game.toggleQuestD();
+                    }
+                }
+            } else if (character.sheet.quest[quest].status == 'active') {
+                // If we do, then see if we are eligible for the rewards!
+                let passed = true;
+                if(quests.q[quest].requirements.stats) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.stats)) {
+                        if(character.sheet.stats[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if(quests.q[quest].requirements.tracking) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.tracking)) {
+                        if(character.sheet.tracking[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if(quests.q[quest].requirements.inventory) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.inventory)) {
+                        if(character.sheet.inventory[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if (passed) {
+                    // we passed the quest! Time to apply the rewards and mark as complete
+                    character.sheet.quest[quest].status = 'Complete';
+
+                    // Fill our inventory with the new stuff!
+                    if(quests.q[quest].rewards.inventory) {
+                        for(const [key, value] of Object.entries(quests.q[quest].rewards.inventory)) {
+                            character.sheet.inventory[key] += value;
+                        }
+                        game.updateInventoryCounts();
+                    }
+
+                    // Add our stats
+                    if(quests.q[quest].rewards.stats) {
+                        for(const [key, value] of Object.entries(quests.q[quest].rewards.stats)) {
+                            character.sheet.stats[key] += value;
+                        }
+                        game.updateCharacterStatDisplays();
+                    }
+
+                    // Skills? Modules? TODO, add those rewards!
+
+                    game.updateQuestDisplay();
+                    game.registerEvent("Quest Complete", "You just completed [" + quest.q[quest].display_name + "]!");
+                    if(game.qdExpanded) {
+                        game.toggleQuestD();
+                    }
+                }
+            } else {
+                // NOTHING, cause the quest isn't active anymore!
+            }
+        });
+    },
+    q: {
+        ml1: {
+            display_name: "Adjusting to a New Life",
+            requirements: {
+                tracking: {
+                    qiConversion: 10,
+                    exchange: 1
+                }
+            },
+            prereqs: {
+                tracking: {
+                    qiConversion: 5
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 5
+                }
+            },
+            desc: ""
+        },
+        ml2: {
+            display_name: "Makings of a True Spirit Vein (3)",
+            prereqs: {
+                // TODO: Make this branch *actually* exist
+                stats: {
+                    regen: 10
+                }
+            },
+            requirements: {
+                stats: {
+                    qiCap: 100
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 2500
+                }
+            }
+        }
+    }
+}
+
+// TODO: Create an Achievements object, or integrate it into the Quests object, as quests that don't have requirements?

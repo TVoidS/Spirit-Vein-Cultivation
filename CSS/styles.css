@@ -4,6 +4,8 @@ body{
     user-select: none;
     margin: 0;
     padding: 0;
+    font-family: Copperplate, Papyrus, Sans-serif;
+    color: #bdbdbd;
 }
 #wrapper {
     position: absolute;
@@ -14,7 +16,6 @@ body{
     /* Set game container width, height, and background */
     width: 100%;
     height: 100%;
-    background: url("../Assets/sq18_center.png");
 }
 .gamelayer {
     width: 100%;
@@ -36,6 +37,7 @@ body{
     top: 45%;
     margin: 10px;
     cursor: pointer;
+    color: white;
 }
 
 /* Game 'Game' Screen */
@@ -50,7 +52,7 @@ body{
     background-color: #390061;
     border: 1px solid grey;
     position: relative;
-    top:90%;
+    top: 80%;
     left: 20%;
 }
 #spirit-slag-prog {
@@ -64,7 +66,7 @@ body{
     background-color: #00459e;
     border: 1px solid grey;
     position: relative;
-    top: 92%;
+    top: 82%;
     left: 20%;
 }
 #qi-regen-prog {
@@ -77,23 +79,114 @@ body{
     font-size: medium;
     color: white;
 }
+
 /* Overall Grid Display */
 .main-display { grid-area: display; }
-.system-display { grid-area: systemD; overflow-y: auto; }
-.inventory-display { grid-area: inventory; margin-top:auto; margin-bottom: 0%;  overflow-y: auto; }
+.system-display { 
+    grid-area: systemD; 
+    overflow-y: auto; 
+}
+.inventory-display { 
+    grid-area: inventory; 
+    margin-top:auto; 
+    margin-bottom: 0%;  
+    overflow-y: auto; 
+}
 .menu-display { grid-area:  menuD; }
-.inspect-display { grid-area: inspect; }
+.inspect-display { 
+    grid-area: inspect; 
+    background-color: #101424;
+    border: 1px solid #bdbdbd;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom: none;
+    text-align: left;
+    overflow: auto;
+    word-wrap: break-word;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.inspect-display-type {
+    float:left; 
+    border: 1px solid #bdbdbd; 
+    border-top: none;
+    border-left: none;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 3px;
+}
+.inspect-bottom-display {
+    display:block;
+    width:unset;
+    border-top: 1px solid #bdbdbd;
+}
+.inspectExtra {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.inspectExtra td {
+    border-left: 1px solid #bdbdbd;
+    padding: 5px;
+}
+.inspectExtra td:first-child {
+    border-left:none;
+}
+.event-display {
+    grid-area: eventD; 
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    border: 1px solid #bdbdbd;
+    background-color: #101424;
+    border-top-right-radius: 5px;
+    border-bottom: none;
+    border-left: none;
+    width: 100%;
+    height: auto;
+    overflow-y: auto;
+}
+.event-table {
+    border-collapse: collapse;
+    margin-bottom: 5px;
+    border-spacing: 0px;
+    width:100%;
+    overflow-y:visible;
+    min-height: inherit;
+}
+.event-table tr {
+    padding:0px;
+    width:100%;
+    text-align: left;
+    border-top: 1px solid #6b6b6b;
+}
+.event-table tr td:first-child {
+    font-weight:900;
+    font-size: small;
+    width:fit-content;
+    white-space: nowrap;
+    padding-left: 5px;
+}
+.event-table tr td:last-child {
+    font-size: small;
+    width:100%;
+    word-wrap: break-word;
+}
 .grid-container {
     display: grid;
-    grid-template-columns: 20% auto 30%;
     padding:0;
     grid-template-areas: 
     'systemD display menuD'
     'systemD display inventory'
-    'systemD inspect inventory';
-    gap: 10px;
+    'eventD inspect inventory';
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: 1fr 2fr 2fr;
+    gap: 5px;
     height:100%;
 }
+
 /* Table Data */
 .royalRoadTable {
     border-collapse: collapse;
@@ -107,15 +200,27 @@ body{
     width: 90%;
     text-align: left;
 }
-.royalRoadTR > td {
+.royalRoadTable tr td {
     border: 1px solid rgba(194, 224, 244, 1);
     padding: 5px;
 }
 .upgradeModule {
     display: none;
 }
+.questModule {
+    display: none;
+}
 .sys-upgrade-img {
     float: left;
+}
+.startScreenTableRow {
+    padding:0 0 10 0;
+}
+.startScreenTable {
+    position: absolute;
+    top: 40%;
+    right: 50%;
+    transform: translateX(+50%);
 }
 
 .inventory {
@@ -125,7 +230,6 @@ body{
 }
 
 /* Game Settings Screen */
-/* Major Section */
 #settingsscreen {
     text-align: center;
 }
@@ -134,4 +238,63 @@ body{
     top:45%;
     margin: 10px;
     cursor: pointer;
+}
+
+/* Button Settings!  ALL OF THEM */
+.startScreenButton {
+    background: rgb(39,0,89);
+    background: linear-gradient(135deg, rgba(39,0,89,1) 39%, rgba(115,60,129,1) 100%, rgba(42,0,255,1) 100%); 
+    border: 2px solid grey;
+    color: lightgrey;
+    text-align: center;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    width: 100px;
+    height: 20px;
+    top: 50%;
+    right: 50%;
+}
+.startScreenButton:hover {
+    box-shadow: 0px 0px 20px rgba(206, 29, 157, 0.4);
+}
+.sys-upgrade-btn {
+    background: rgb(39,0,89);
+    background: linear-gradient(135deg, rgba(39,0,89,1) 39%, rgba(115,60,129,1) 100%, rgba(42,0,255,1) 100%); 
+    border: 2px solid grey;
+    color: lightgrey;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    width: 15px;
+    height: 15px;
+    top: 50%;
+    right: 50%;
+    float: left;
+    box-sizing: border-box;
+    margin-left: 1px;
+    margin-right: 3px;
+    margin-top: 1px;
+}
+.sys-upgrade-btn:hover {
+    box-shadow: 0px 0px 10px rgba(206, 29, 157, 0.4);
+    background: rgb(60,0,120);
+}
+.downloadButton {
+    background: rgb(39,0,89);
+    background: linear-gradient(135deg, rgba(39,0,89,1) 39%, rgba(115,60,129,1) 100%, rgba(42,0,255,1) 100%); 
+    border: 2px solid grey;
+    color: lightgrey;
+    text-align: center;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    width: 100px;
+    height: 40px;
+    top: 50%;
+    right: 50%;
+}
+.downloadButton:hover {
+    box-shadow: 0px 0px 20px rgba(206, 29, 157, 0.4);
 }
