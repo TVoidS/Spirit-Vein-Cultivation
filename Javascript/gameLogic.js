@@ -22,6 +22,7 @@ const game = {
         //System Modules
         //Upgrade Module
         setup.systemUpgradeModule();
+        setup.systemQuestModule();
 
         // Stats Upgrades
         setup.characterStats();
@@ -50,6 +51,7 @@ const game = {
 
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
+        game.questLoop = setInterval(quests.checkQuests, (10000)); 
     },
 
     // Primary GameLoop function!  This will repeate forever and eever and eeeeeeverrrr
@@ -171,6 +173,7 @@ const game = {
             // but if it is the active tab, use the normal fill-rate.
             game.res_bar_prog++;
         }
+
         if(game.res_bar_prog >= rates.time.convert[game.mat_tier]) {
             // If the bar IS full or over-full,
 
@@ -184,12 +187,15 @@ const game = {
             
             // Update the Inventory Counts display!
             game.updateInventoryCounts();
+        
+            // We just did a thing, remember that!
+            character.sheet.tracking.qiConversion++;
         }
         game.spiritSlagProgBar.style.width = ((game.res_bar_prog/rates.time.convert[game.mat_tier])*100) + "%";
     },
 
     // Toggles the System Menu's Upgrade Module
-    toggleUpgrade: function() {
+    toggleUpgradeD: function() {
 
         // Check if the menu is open yet or not
         if(!game.upExpanded) {
@@ -219,6 +225,27 @@ const game = {
 
             // Update the recorded state!
             game.upExpanded = false;
+        }
+    },
+
+    // Toggles the System Menu's Quest Module
+    toggleQuestD: function () {
+        if(!game.qdExpanded) {
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "table-row";
+            }
+
+            game.qdExp.innerHTML = "--Close--";
+
+            game.qdExpanded = true;
+        } else {
+
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "none";
+            }
+
+            game.qdExp.innerHTML = "--Open--";
+            game.qdExpanded = false;
         }
     },
 
@@ -299,6 +326,7 @@ const game = {
     },
 
     // makes a call to inspect an item, and updates the related Inspection Display
+    // TODO: transfer this to the inspect object.
     inspect: function(target) {
         // If the target exists
         if(inspection[target]){
@@ -331,9 +359,24 @@ const game = {
     // Registers an event on the Event Log
     registerEvent: function(event, message) {
         game.eventLog.innerHTML += "<tr><td>" + event + ":</td><td>" + message + "</td></tr>";
+    }, 
+
+    // Handles the addition of new Quests to the Quest Display!
+    updateQuestDisplay: function() {
+        // Just re-display everything (a quest Status might have changed?)
+        const elements = document.getElementsByClassName("quest");
+        while(elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+        let temp = "";
+        for (const qes in character.sheet.quest) {
+            // TODO: Add the onclick inspect function for each quest!
+            temp += '<tr class="questModule quest"><td>' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
+        }
+        game.questsDisplay.insertAdjacentHTML("afterend", temp);
     }
 }
-
 
 // This object is for connection forming, and constant data loading.  NOT FOR CHARACTER SETUP
 const setup = {
@@ -406,6 +449,12 @@ const setup = {
         game.inspectType = document.getElementById("inspectType");
         game.inspectDesc = document.getElementById("inspectDescription");
         game.inspectExt = document.getElementById("inspectExtra");
+    },
+    systemQuestModule: function() {
+        game.qdExpanded = false;
+        game.sysQdMod = document.getElementsByClassName("questModule");
+        game.qdExp = document.getElementById("questExpand");
+        game.questsDisplay = document.getElementById("quests");
     }
 }
 
@@ -428,7 +477,6 @@ const character = {
                 qiConversion: 1 // TODO: MORE SKILLS
             },
             quest: {
-                // TODO: MAKE QUESTS
             },
             thresholds: {
                 qiConversion: {
@@ -442,6 +490,10 @@ const character = {
                     res8: false,
                     res9: false
                 }
+            },
+            tracking: {
+                qiConversion: 0,
+                exchange: 0
             }
         };
         if(data == 'new') {
@@ -520,6 +572,8 @@ const character = {
 
             // We updated the inventory, so update related display components!
             game.updateInventoryCounts();
+            // HE DID A THING, HE DID A THING!
+            character.sheet.tracking.exchange++;
         }
     }
 }
@@ -539,36 +593,26 @@ const rates = {
     // Calculates the return value that would be generated for a given mat_tier.
     calculateReturn: function(mat_tier) {
         var tiers = {
-            0: {
-                req_tier: 0, // The required Purity Tier to efficiently produce the material
-                amt_per_grade: 10, // The amount of increase to production a Purity Grade effects when we are efficiently producing the material
-                exd_tier_mult: .5 // The bonus gained by being TOO PURE in tier.  this is (1 + exd_tier_mult)*(how far we exceed by)
-            },
-            1: { // Leaving this the same as tier 0, except for req_tier for now, as I don't think they are actually different.  May reduce the code later to represent this.
-                req_tier: 1,
-                amt_per_grade: 10,
-                exd_tier_mult: .5
-            },
-            2: {
-                req_tier: 2,
-                amt_per_grade: 10,
-                exd_tier_mult: .5
-            }
+            0: 0, // Inferior Spirit Slag
+            1: 1, // Spirit Slag
+            2: 2, // Superior Spirit Slag
+            3: 4 // 
         }
 
-        // saves me some typing!
-        // Retrieves the grade of purity
-        // var grade = character.sheet.stats.purity%10;
-        // Retrieves the Tier of purity
-        // var tier = ( character.sheet.stats.purity - grade ) / 10;
-
-        var pureCheck = (character.sheet.stats.purity+1-(10*tiers[mat_tier].req_tier));
+        var pureCheck = (character.sheet.stats.purity-(10*tiers[mat_tier]))+1;
         if (pureCheck > 0) {
-            var ret = pureCheck*tiers[mat_tier].amt_per_grade;
+            // Grey Magik
+            let pureGrade = pureCheck%10;
+            pureCheck -= pureGrade;
+            let pureTier = pureCheck/10;
+            let ret = pureGrade*fibbo.getMeMyCost(pureTier+2)*10;
+            if(fibbo.avg_f2[pureTier-1]){
+                ret += (pureCheck*fibbo.avg_f2[pureTier-1]*10)
+            }
             return ret;
-        } else if (pureCheck > -10){
+        } else if (pureCheck > -9){
             pureCheck--;
-            var ret = (tiers[mat_tier].amt_per_grade)+pureCheck;
+            var ret = 10+pureCheck;
             return ret;
         } else {
             return 0;
@@ -729,7 +773,28 @@ const fibbo = {
         FastDoubling(num, res);
 
         return res[0];
-    }
+    },
+    avg_f2: [ // Average values of Fibbo numbers starting from the second 1. Used primarily in calculating returns  hopefully we won't need more than tier 20?  Hopefully???
+        1,
+        1.5,
+        2,
+        2.75,
+        3.8,
+        5+(1/3),
+        (53/7),
+        10.875,
+        15+(7/9),
+        23.1,
+        (375/11),
+        50+(2/3),
+        (985/13),
+        (1595/14),
+        (2582/15),
+        (4179/16),
+        (6763/17),
+        608,
+        (17709/19)
+    ]
 }
 
 const inspection = {
@@ -782,6 +847,159 @@ const inspection = {
     res2: {
         name: "Superior Spirit Slag",
         type: "Resource",
-        desc: "Heavily energized blue powder.  This slag is so potent, that it is capable of emulating years of growth in hours.  Needless to say, many sects would fight over a reliable source."
+        desc: "If Spirit Slag was just Inferior Spirit Slag in a better package, then Superior Spirit Slag is totally different. At this point, multiple people, especially alchemists and gardeners, would totally love to have Superior Spirit Slag on hand. Why, you might ask? Well, Superior Spirit Slag is actually closer to Spirit Stones compared to actual Spirit Slag. Sure, it's packaged the same way as the two previous products and has even better smelling perfume, but its effects are leagues apart compared to its previous variant.  Surprisingly, it's also used to cure hemorrhoids."
     }
 }
+
+const quests = {
+    checkQuests: function() {
+        let keys = Object.keys(quests.q);
+
+        // Check each quest...
+        keys.forEach(quest => {
+            let newQuest = true;
+            // If the player doesn't already have the quest...
+            if(!character.sheet.quest.hasOwnProperty(quest)) {
+                if(quests.q[quest].prereqs.stats) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.stats)) {
+                        if (character.sheet.stats[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+                if(quests.q[quest].prereqs.inventory && newQuest) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.inventory)) {
+                        if (character.sheet.inventory[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+                if(quests.q[quest].prereqs.tracking && newQuest) {
+                    // Then verify that the player meets the prereqs!
+
+                    for (const [key, value] of Object.entries(quests.q[quest].prereqs.tracking)) {
+                        if (character.sheet.tracking[key] < value) {
+                            newQuest=false;
+                            break;
+                        }
+                    }
+                }
+
+                if(newQuest) {
+                    // Register an event, and add the quest to the player!
+                    game.registerEvent("New Quest", quests.q[quest].display_name);
+                    character.sheet.quest[quest] = quests.q[quest];
+                    character.sheet.quest[quest].status = "active";
+                    game.updateQuestDisplay(quest);
+
+                    if(game.qdExpanded) {
+                        game.toggleQuestD();
+                    }
+                }
+            } else if (character.sheet.quest[quest].status == 'active') {
+                // If we do, then see if we are eligible for the rewards!
+                let passed = true;
+                if(quests.q[quest].requirements.stats) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.stats)) {
+                        if(character.sheet.stats[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if(quests.q[quest].requirements.tracking) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.tracking)) {
+                        if(character.sheet.tracking[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if(quests.q[quest].requirements.inventory) {
+                    for(const [key, value] of Object.entries(quests.q[quest].requirements.inventory)) {
+                        if(character.sheet.inventory[key] < value) {
+                            passed = false;
+                        }
+                    }
+                }
+                if (passed) {
+                    // we passed the quest! Time to apply the rewards and mark as complete
+                    character.sheet.quest[quest].status = 'Complete';
+
+                    // Fill our inventory with the new stuff!
+                    if(quests.q[quest].rewards.inventory) {
+                        for(const [key, value] of Object.entries(quests.q[quest].rewards.inventory)) {
+                            character.sheet.inventory[key] += value;
+                        }
+                        game.updateInventoryCounts();
+                    }
+
+                    // Add our stats
+                    if(quests.q[quest].rewards.stats) {
+                        for(const [key, value] of Object.entries(quests.q[quest].rewards.stats)) {
+                            character.sheet.stats[key] += value;
+                        }
+                        game.updateCharacterStatDisplays();
+                    }
+
+                    // Skills? Modules? TODO, add those rewards!
+
+                    game.updateQuestDisplay();
+                    game.registerEvent("Quest Complete", "You just completed [" + quest.q[quest].display_name + "]!");
+                    if(game.qdExpanded) {
+                        game.toggleQuestD();
+                    }
+                }
+            } else {
+                // NOTHING, cause the quest isn't active anymore!
+            }
+        });
+    },
+    q: {
+        ml1: {
+            display_name: "Adjusting to a New Life",
+            requirements: {
+                tracking: {
+                    qiConversion: 10,
+                    exchange: 1
+                }
+            },
+            prereqs: {
+                tracking: {
+                    qiConversion: 5
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 5
+                }
+            },
+            desc: ""
+        },
+        ml2: {
+            display_name: "Makings of a True Spirit Vein (3)",
+            prereqs: {
+                // TODO: Make this branch *actually* exist
+                stats: {
+                    regen: 10
+                }
+            },
+            requirements: {
+                stats: {
+                    qiCap: 100
+                }
+            },
+            rewards: {
+                inventory: {
+                    sp: 2500
+                }
+            }
+        }
+    }
+}
+
+// TODO: Create an Achievements object, or integrate it into the Quests object, as quests that don't have requirements?

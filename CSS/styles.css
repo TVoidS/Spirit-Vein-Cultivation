@@ -16,7 +16,6 @@ body{
     /* Set game container width, height, and background */
     width: 100%;
     height: 100%;
-    background: url("../Assets/sq18_center.png");
 }
 .gamelayer {
     width: 100%;
@@ -53,7 +52,7 @@ body{
     background-color: #390061;
     border: 1px solid grey;
     position: relative;
-    top:90%;
+    top: 80%;
     left: 20%;
 }
 #spirit-slag-prog {
@@ -67,7 +66,7 @@ body{
     background-color: #00459e;
     border: 1px solid grey;
     position: relative;
-    top: 92%;
+    top: 82%;
     left: 20%;
 }
 #qi-regen-prog {
@@ -137,22 +136,21 @@ body{
 .event-display {
     grid-area: eventD; 
     display: flex;
-    overflow: auto;
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: flex-end;
     border: 1px solid #bdbdbd;
     background-color: #101424;
+    border-top-right-radius: 5px;
     border-bottom: none;
     border-left: none;
-    border-top-right-radius: 5px;
     width: 100%;
-    height: 100%;
-    padding-bottom: 5px;
+    height: auto;
+    overflow-y: auto;
 }
 .event-table {
     border-collapse: collapse;
-    padding: 5px;
+    margin-bottom: 5px;
     border-spacing: 0px;
     width:100%;
     overflow-y:visible;
@@ -202,11 +200,14 @@ body{
     width: 90%;
     text-align: left;
 }
-.royalRoadTR > td {
+.royalRoadTable tr td {
     border: 1px solid rgba(194, 224, 244, 1);
     padding: 5px;
 }
 .upgradeModule {
+    display: none;
+}
+.questModule {
     display: none;
 }
 .sys-upgrade-img {
