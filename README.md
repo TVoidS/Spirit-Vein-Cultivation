@@ -13,12 +13,11 @@ It should work, but the buttons won't appear
 
 ## TODO:
 ### Planned for SOON(TM):
-- Quests
 - Spirit Receptor Module (v1c18)
 
 
 ### Additions:
-- QUESTS: Entire thing needs to be implemented!
+- QUESTS: Need to add more! (requires narrative quest triggers?)
 - "Spirit Receptor Module" needs to be implemented
 - Knowledge Module! (This is not going to be anytime soon)
 - "Character Size" needs to be added and utilized!  Research into what it actually changes too!
