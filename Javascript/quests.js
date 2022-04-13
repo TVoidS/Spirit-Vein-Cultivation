@@ -1,4 +1,3 @@
-
 const quests = {
     checkQuests: function() {
         let keys = Object.keys(quests.q);

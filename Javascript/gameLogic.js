@@ -327,30 +327,35 @@ const game = {
 
     // makes a call to inspect an item, and updates the related Inspection Display
     // TODO: transfer this to the inspect object.
-    inspect: function(target) {
+    inspect: function(target, type) {
         // If the target exists
-        if(inspection[target]){
-            // Update common items
-            game.inspectName.innerHTML = inspection[target].name;
-            game.inspectType.innerHTML = inspection[target].type;
-            game.inspectDesc.innerHTML = inspection[target].desc;
+        if(type == "quest") {
+            // TODO: Make this thingy a thing!
+            console.log("Registered Quest Inspection! Target: " + target);
+        } else {
+            if(inspection[target]){
+                // Update common items
+                game.inspectName.innerHTML = inspection[target].name;
+                game.inspectType.innerHTML = inspection[target].type;
+                game.inspectDesc.innerHTML = inspection[target].desc;
 
-            // Check for what the "Extra" display would be used for!
+                // Check for what the "Extra" display would be used for!
 
-            if(inspection[target].upg_desc) {
-                // There will be an array of objects here
-                var out = '<table class="inspectExtra">'
-                for(let i = 0; i < inspection[target].upg_desc.length; i++) {
-                    // Add a <td> </td> per item?
-                    out += "<td>" + inspection[target].upg_desc[i] + "</td>";
+                if(inspection[target].upg_desc) {
+                    // There will be an array of objects here
+                    var out = '<table class="inspectExtra">'
+                    for(let i = 0; i < inspection[target].upg_desc.length; i++) {
+                        // Add a <td> </td> per item?
+                        out += "<td>" + inspection[target].upg_desc[i] + "</td>";
+                    }
+                    out += "</table>";
+                    game.inspectExt.style.display = "block";
+                    game.inspectExt.innerHTML = out;
+                } else {
+                    // No bonus content found, hide the thingy!
+                    game.inspectExt.style.display = "none";
+                    game.inspectExt.innerHTML = "";
                 }
-                out += "</table>";
-                game.inspectExt.style.display = "block";
-                game.inspectExt.innerHTML = out;
-            } else {
-                // No bonus content found, hide the thingy!
-                game.inspectExt.style.display = "none";
-                game.inspectExt.innerHTML = "";
             }
         }
 
@@ -372,7 +377,7 @@ const game = {
         let temp = "";
         for (const qes in character.sheet.quest) {
             // TODO: Add the onclick inspect function for each quest!
-            temp += '<tr class="questModule quest"><td>' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
+            temp += '<tr class="questModule quest"><td onclick="game.inspect(\'' + qes + '\',\'quest\')">' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
         }
         game.questsDisplay.insertAdjacentHTML("afterend", temp);
     }
