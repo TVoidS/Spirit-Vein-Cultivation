@@ -74,6 +74,8 @@ body{
     height:10px;
     background-color: #00aeff;
 }
+
+/* Other Font */
 .resourceCount {
     font-family: 'Courier New', Courier, monospace;
     font-size: medium;
@@ -209,6 +211,10 @@ body{
 }
 .questModule {
     display: none;
+}
+.srParent {
+    /* This is to allow for the row to be off by default and toggled on if unlocked! */
+    display:none;
 }
 .sys-upgrade-img {
     float: left;
