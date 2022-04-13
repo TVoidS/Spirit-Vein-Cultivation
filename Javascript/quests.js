@@ -1,4 +1,7 @@
 const quests = {
+    init: function() {
+        quests.expanded = false;
+    },
     checkQuests: function() {
         let keys = Object.keys(quests.q);
 
@@ -109,14 +112,14 @@ const quests = {
     
     // Toggles the System Menu's Quest Module
     toggleD: function() {
-        if(!game.qdExpanded) {
+        if(!quests.expanded) {
             for(let i = 0; i < game.sysQdMod.length; i++) {
                 game.sysQdMod[i].style.display = "table-row";
             }
 
             game.qdExp.innerHTML = "--Close--";
 
-            game.qdExpanded = true;
+            quests.expanded = true;
         } else {
 
             for(let i = 0; i < game.sysQdMod.length; i++) {
@@ -124,7 +127,7 @@ const quests = {
             }
 
             game.qdExp.innerHTML = "--Open--";
-            game.qdExpanded = false;
+            quests.expanded = false;
         }
     },
     

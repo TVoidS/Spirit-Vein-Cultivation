@@ -226,10 +226,10 @@ body{
 .questModule {
     display: none;
 }
-.srModule {
+.sRModule {
     display:none;
 }
-.srParent {
+.sRParent {
     /* This is to allow for the row to be off by default and toggled on if unlocked! */
     display:none;
 }

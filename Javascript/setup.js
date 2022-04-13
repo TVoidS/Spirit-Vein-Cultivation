@@ -70,10 +70,18 @@ const setup = {
         game.inspectDesc = document.getElementById("inspectDescription");
         game.inspectExt = document.getElementById("inspectExtra");
     },
+    // Handles the connection between the Game object and the display
     systemQuestModule: function() {
-        game.qdExpanded = false;
         game.sysQdMod = document.getElementsByClassName("questModule");
         game.qdExp = document.getElementById("questExpand");
         game.questsDisplay = document.getElementById("quests");
+        quests.init(); // Set the default values for the Quest object!
+    },
+    // Connects the Game Object, and the displays for the Spirit Receptor.
+    spiritReceptorModule: function() {
+        game.sRExpBtn = document.getElementById("sRExpand");
+        game.sRDMod = document.getElementsByClassName("sRModule");
+        game.sRDisplay = document.getElementById("spiritReceptor");
+        spiritReceptor.init(); // Set the default values for the Spirit Receptor object!
     }
 }

@@ -23,7 +23,8 @@ const game = {
         //Upgrade Module
         setup.systemUpgradeModule();
         setup.systemQuestModule();
-
+        setup.spiritReceptorModule();
+        
         // Stats Upgrades
         setup.characterStats();
 
