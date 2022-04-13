@@ -228,27 +228,6 @@ const game = {
         }
     },
 
-    // Toggles the System Menu's Quest Module
-    toggleQuestD: function () {
-        if(!game.qdExpanded) {
-            for(let i = 0; i < game.sysQdMod.length; i++) {
-                game.sysQdMod[i].style.display = "table-row";
-            }
-
-            game.qdExp.innerHTML = "--Close--";
-
-            game.qdExpanded = true;
-        } else {
-
-            for(let i = 0; i < game.sysQdMod.length; i++) {
-                game.sysQdMod[i].style.display = "none";
-            }
-
-            game.qdExp.innerHTML = "--Open--";
-            game.qdExpanded = false;
-        }
-    },
-
     // Handle everything related to Qi Regen, except updating the stats display when done!
     updateQiRegenBar: function() {
 
@@ -364,22 +343,6 @@ const game = {
     // Registers an event on the Event Log
     registerEvent: function(event, message) {
         game.eventLog.innerHTML += "<tr><td>" + event + ":</td><td>" + message + "</td></tr>";
-    }, 
-
-    // Handles the addition of new Quests to the Quest Display!
-    updateQuestDisplay: function() {
-        // Just re-display everything (a quest Status might have changed?)
-        const elements = document.getElementsByClassName("quest");
-        while(elements.length > 0) {
-            elements[0].parentNode.removeChild(elements[0]);
-        }
-
-        let temp = "";
-        for (const qes in character.sheet.quest) {
-            // TODO: Add the onclick inspect function for each quest!
-            temp += '<tr class="questModule quest"><td onclick="game.inspect(\'' + qes + '\',\'quest\')">' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
-        }
-        game.questsDisplay.insertAdjacentHTML("afterend", temp);
     }
 }
 // TODO: Create an Achievements object, or integrate it into the Quests object, as quests that don't have requirements?

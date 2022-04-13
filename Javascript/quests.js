@@ -40,13 +40,13 @@ const quests = {
 
                 if(newQuest) {
                     // Register an event, and add the quest to the player!
-                    game.registerEvent("New Quest", "["+quests.q[quest].display_name)+"]";
+                    game.registerEvent("New Quest", "[" + quests.q[quest].display_name + "]");
                     character.sheet.quest[quest] = quests.q[quest];
                     character.sheet.quest[quest].status = "active";
-                    game.updateQuestDisplay(quest);
+                    quests.updateD();
 
                     if(game.qdExpanded) {
-                        game.toggleQuestD();
+                        quests.toggleD();
                     }
                 }
             } else if (character.sheet.quest[quest].status == 'active') {
@@ -95,10 +95,10 @@ const quests = {
 
                     // Skills? Modules? TODO, add those rewards!
 
-                    game.updateQuestDisplay();
+                    quests.updateD();
                     game.registerEvent("Quest Complete", "You just completed [" + quests.q[quest].display_name + "]!");
                     if(game.qdExpanded) {
-                        game.toggleQuestD();
+                        quests.toggleD();
                     }
                 }
             } else {
@@ -106,6 +106,44 @@ const quests = {
             }
         });
     },
+    
+    // Toggles the System Menu's Quest Module
+    toggleD: function() {
+        if(!game.qdExpanded) {
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "table-row";
+            }
+
+            game.qdExp.innerHTML = "--Close--";
+
+            game.qdExpanded = true;
+        } else {
+
+            for(let i = 0; i < game.sysQdMod.length; i++) {
+                game.sysQdMod[i].style.display = "none";
+            }
+
+            game.qdExp.innerHTML = "--Open--";
+            game.qdExpanded = false;
+        }
+    },
+    
+    // Handles the addition of new Quests to the Quest Display!
+    updateD: function() {
+        // Just re-display everything (a quest Status might have changed?)
+        const elements = document.getElementsByClassName("quest");
+        while(elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+        let temp = "";
+        for (const qes in character.sheet.quest) {
+            // TODO: Add the onclick inspect function for each quest!
+            temp += '<tr class="questModule quest"><td onclick="game.inspect(\'' + qes + '\',\'quest\')">' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
+        }
+        game.questsDisplay.insertAdjacentHTML("afterend", temp);
+    },
+
     q: {
         ml1: {
             display_name: "Adjusting to a New Life",
