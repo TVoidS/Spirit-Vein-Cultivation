@@ -74,6 +74,8 @@ body{
     height:10px;
     background-color: #00aeff;
 }
+
+/* Other Font */
 .resourceCount {
     font-family: 'Courier New', Courier, monospace;
     font-size: medium;
@@ -204,12 +206,6 @@ body{
     border: 1px solid rgba(194, 224, 244, 1);
     padding: 5px;
 }
-.upgradeModule {
-    display: none;
-}
-.questModule {
-    display: none;
-}
 .sys-upgrade-img {
     float: left;
 }
@@ -223,6 +219,22 @@ body{
     transform: translateX(+50%);
 }
 
+/* Module data!  This is to make them searchable and toggle-able in JavaScript! */
+.upgradeModule {
+    display: none;
+}
+.questModule {
+    display: none;
+}
+.sRModule {
+    display:none;
+}
+.sRParent {
+    /* This is to allow for the row to be off by default and toggled on if unlocked! */
+    display:none;
+}
+
+/* Meant to keep the Spirit Slag and other resources to the far right! */
 .inventory {
     position:relative;
     margin-right: 0%;

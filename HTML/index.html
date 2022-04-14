@@ -6,6 +6,15 @@
         <script src="../Javascript/redirectionLogic.js" type="text/javascript"></script>
         <script src="../Javascript/gameLogic.js" type="text/javascript"></script>
         <script src="../Javascript/settingsLogic.js" type="text/javascript"></script>
+        <script src="../Javascript/setup.js" type="text/javascript"></script>
+        <script src="../Javascript/character.js" type="text/javascript"></script>
+        <script src="../Javascript/rates.js" type="text/javascript"></script>
+        <script src="../Javascript/upgrades.js" type="text/javascript"></script>
+        <script src="../Javascript/fibbonacci.js" type="text/javascript"></script>
+        <script src="../Javascript/inspect.js" type="text/javascript"></script>
+        <script src="../Javascript/quests.js" type="text/javascript"></script>
+        <script src="../Javascript/spiritReceptor.js" type="text/javascript"></script>
+        <script src="../Javascript/thresholds.js" type="text/javascript"></script>
         <link rel="stylesheet" href="../CSS/styles.css" type="text/css" media="screen">
     </head>
 
@@ -42,6 +51,9 @@
                                         <td>System Points</td>
                                         <td id="systemPoints">*error*</td>
                                     </tr>
+                                    <!---->
+                                    <!-- UPGRADE MODULE START -->
+                                    <!---->
                                     <tr>
                                         <td>Upgrade Module</td>
                                         <td id="upgradeExpand" onclick="game.toggleUpgradeD()">--Open--</td>
@@ -51,15 +63,15 @@
                                         <td>Cost</td>
                                     </tr>
                                     <tr class="upgradeModule">
-                                        <td><div id="qiCapUpgradeModule" onclick="game.inspect('qiCap')">--</div></td>
+                                        <td><div id="qiCapUpgradeModule" onclick="game.inspect('qiCap','normal')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('qiCap')"></div><div id="qiCapCost">--</div></td>
                                     </tr>
                                     <tr class="upgradeModule">
-                                        <td><div id="qiPurityUpgradeModule" onclick="game.inspect('purity')">--</div></td>
+                                        <td><div id="qiPurityUpgradeModule" onclick="game.inspect('purity','normal')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('purity')"></div><div id="qiPurityCost">--</div></td>
                                     </tr>
                                     <tr class="upgradeModule">
-                                        <td><div id="qiRegenUpgradeModule" onclick="game.inspect('regen')">--</div></td>
+                                        <td><div id="qiRegenUpgradeModule" onclick="game.inspect('regen','normal')">--</div></td>
                                         <td><div class="sys-upgrade-btn" onclick="game.upgradeStat('regen')"></div><div id="qiRegenCost">--</div></td>
                                     </tr>
                                     <tr class="upgradeModule">
@@ -67,12 +79,26 @@
                                         <td>Cost</td>
                                     </tr>
                                     <tr class="upgradeModule">
-                                        <td><div id="qiConversionUpgradeModule" onclick="game.inspect('qiConversion')">--</div></td>
-                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion')"></div><div id="qiConversionCost">--</div></td>
+                                        <td><div id="qiConversionUpgradeModule" onclick="game.inspect('qiConversion','normal')">--</div></td>
+                                        <td><div class="sys-upgrade-btn" onclick="game.upgradeSkill('qiConversion','normal')"></div><div id="qiConversionCost">--</div></td>
                                     </tr>
+                                    <!---->
+                                    <!-- SPIRIT RECEPTOR MODULE START -->
+                                    <!---->
+                                    <tr class="sRParent">
+                                        <td>Spirit Receptor Module</td>
+                                        <td id="sRExpand" onclick="spiritReceptor.toggleD()">--Open--</td>
+                                    </tr>
+                                    <tr class="sRModule" id="spiritReceptor">
+                                        <td>Upgrades:</td>
+                                        <td>Cost:</td>
+                                    </tr>
+                                    <!---->
+                                    <!-- QUEST MODULE START -->
+                                    <!---->
                                     <tr>
                                         <td>Quest Module</td>
-                                        <td id="questExpand" onclick="game.toggleQuestD()">--Open--</td>
+                                        <td id="questExpand" onclick="quests.toggleD()">--Open--</td>
                                     </tr>
                                     <tr id="quests" class="questModule">
                                         <td>Quest Name</td>
