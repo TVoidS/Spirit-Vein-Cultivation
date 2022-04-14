@@ -30,6 +30,9 @@ const character = {
                     res7: false,
                     res8: false,
                     res9: false
+                },
+                modules: {
+                    spiritReceptor: false
                 }
             },
             tracking: {

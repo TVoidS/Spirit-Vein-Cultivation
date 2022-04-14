@@ -24,7 +24,7 @@ const game = {
         setup.systemUpgradeModule();
         setup.systemQuestModule();
         setup.spiritReceptorModule();
-        
+
         // Stats Upgrades
         setup.characterStats();
 
@@ -52,7 +52,8 @@ const game = {
 
         // Start the game loop! (KEEP AT THE END OF INIT())
         game.gameLoop= setInterval(game.gameLogic, timeStep);
-        game.questLoop = setInterval(quests.checkQuests, (10000)); 
+        game.questLoop = setInterval(quests.checkQuests, (10000));
+        game.unlockLoop = setInterval(thresholds.check, 10000)
     },
 
     // Primary GameLoop function!  This will repeate forever and eever and eeeeeeverrrr

@@ -82,6 +82,7 @@ const setup = {
         game.sRExpBtn = document.getElementById("sRExpand");
         game.sRDMod = document.getElementsByClassName("sRModule");
         game.sRDisplay = document.getElementById("spiritReceptor");
+        game.sRUnlock = document.getElementsByClassName("sRParent");
         spiritReceptor.init(); // Set the default values for the Spirit Receptor object!
     }
 }
