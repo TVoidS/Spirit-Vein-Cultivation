@@ -33,10 +33,71 @@ const spiritReceptor = {
             spiritReceptor.expanded = false;
         }
     },
+    // Handles the addition of new Quests to the Quest Display!
+    updateD: function() {
+
+        // TODO: EVERYTHING!!!!!
+
+        // Just re-display everything (a receptor status might have changed?)
+        const elements = document.getElementsByClassName("sRTier");
+        while(elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
+        // Default of Empty String
+        let temp = "";
+
+        let keys = Object.keys(spiritReceptor.tiers);
+        // BUILD HTML
+
+        for(let i = 0; i < keys.length; i++) {
+            if((i-1) > -1) {
+                // If it isn't, then we are dealing with the first row, so we always display it.
+                
+                // Check if the previous tier has been completed!
+                if (spiritReceptor.tiers[keys[i-1]].levels == character.sheet.spiritReceptor[keys[i-1]]) {
+                    // They've maxed it, continue as normal!
+                    temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (" + character.sheet.spiritReceptor[keys[i]] + "/" + spiritReceptor.tiers[keys[i]].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+keys[i]+"')\"></div>" + spiritReceptor.tiers[keys[i]].cost + " System Points</td></tr>";
+                } else {
+                    // They aren't maxxed in the previous level! Show mostly question marks!
+                    temp += "<tr class=\"sRModule sRTier\"><td> [" + spiritReceptor.tiers[keys[i]].tier + "--????????????????] (??/??)</td><td>?? System Points</td></tr>";
+                }
+            } else {
+                // Default entry, only check for level!, it's tier 0 after all
+                if(character.sheet.spiritReceptor.t0 == 1) {
+                    temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (1/1)</td><td> Max Level </td></tr>";
+                } else {
+                    temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (" + character.sheet.spiritReceptor[keys[i]] + "/" + spiritReceptor.tiers[keys[i]].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+keys[i]+"')\"></div>" + spiritReceptor.tiers[keys[i]].cost + " System Points</td></tr>";
+                }
+            }
+        }
+
+        game.sRDisplay.insertAdjacentHTML("afterend", temp);
+    },
+    // Creates the layout for initial display (TESTING) Unneccessary once I get the UpdateD function to work properly.
+    createD: function() {
+        // Default of Empty String
+        let temp = "";
+
+        // BUILD HTML
+        Object.keys(spiritReceptor.tiers).forEach(tier => {
+            // Each tier gets a row added to Temp
+            temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + tier + "','spiritReceptor')\"> [" + spiritReceptor.tiers[tier].tier + "--" + spiritReceptor.tiers[tier].name + "] (" + character.sheet.spiritReceptor[tier] + "/" + spiritReceptor.tiers[tier].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+tier+"')\"></div>" + spiritReceptor.tiers[tier].cost + " System Points</td></tr>";
+        });
+
+        game.sRDisplay.insertAdjacentHTML("afterend", temp);
+    },
+    // Runs on the initial unlock of the system!
     unlock: function() {
         // We unlocked the function!  Display the basic data!
         for (const item of game.sRUnlock) {
             item.style.display = "table-row";
+        }
+    },
+    // Upgrade the Spirit Receptor Module!
+    upgrade: function(target) {
+        if(character.sheet.inventory.sp >= spiritReceptor.tiers[target].cost) {
+
         }
     },
     tiers: {
@@ -46,7 +107,8 @@ const spiritReceptor = {
             name: "Receptor Conceptualization",
             desc: "The first step to build a Spirit Receptor is to conceptualize how it would look like. Depending on the environment, Spirit Receptors may take on various shapes and sizes to suit their environment.  Once this upgrade is bought, the user's base Qi Recovery Rate shall be boosted by 10%.",
             bonus_per_lvl: .1,
-            total_bonus: .1
+            total_bonus: .1,
+            tier: "Tier 0"
         },
         t1: {
             cost: 5,
@@ -54,7 +116,8 @@ const spiritReceptor = {
             name: "Receptor Foundation",
             desc: "Once a Spirit Receptor has been conceptualized, one must now transform the concept into something more corporeal, laying its foundations into reality. Only when a spirit vein has achieved the peak of this level would they be considered to have actual Spirit Receptors. Once this upgrade is at its maximum level, the user's base Qi Recovery Rate shall be boosted by another 10%, boosting it by a total of 20%.",
             bonus_per_level: .02,
-            total_bonus: .1
+            total_bonus: .1,
+            tier: "Tier 1"
         }
     }
 }

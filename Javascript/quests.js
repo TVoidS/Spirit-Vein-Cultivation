@@ -141,7 +141,6 @@ const quests = {
 
         let temp = "";
         for (const qes in character.sheet.quest) {
-            // TODO: Add the onclick inspect function for each quest!
             temp += '<tr class="questModule quest"><td onclick="game.inspect(\'' + qes + '\',\'quest\')">' + character.sheet.quest[qes].display_name + '</td><td>' + character.sheet.quest[qes].status + '</td></tr>';
         }
         game.questsDisplay.insertAdjacentHTML("afterend", temp);

@@ -13,6 +13,16 @@ const game = {
         game.baseTime = 12; // This is in seconds!  This is mostly in charge of qi regen, BUT it is also in charge of most things that are from the story!
         // e.g. The default time it takes to process the spirit slag!
 
+        // Create the Character object
+        if(type == 'new') {
+            // if the init was called via the "New Game" button
+            character.init('new');
+        } else {
+            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
+            // load provided json (type variable)
+            character.init(type);
+        }
+
         // Initial values for the progress bars.
         setup.bars();
 
@@ -37,15 +47,13 @@ const game = {
         // Connect the Event Log
         game.eventLog = document.getElementById("eventLog");
 
-        // Create the Character object
-        if(type == 'new') {
-            // if the init was called via the "New Game" button
-            character.init('new');
-        } else {
-            // If the init was called via the "Load Character" button (PROVIDES JSON FILE)
-            // load provided json (type variable)
-            character.init(type);
-        }
+        // Make it so the display values are updated to be correct!
+        game.updateInventoryCounts();
+        game.onLoadInventoryRows();
+        game.updateCharacterStatDisplays();
+        game.updateCharacterSkillDisplays();
+
+        spiritReceptor.updateD();
 
         // Welcome them to the game!
         game.registerEvent('Welcome', 'Welcome to the Spirit Vein Idle game!  Make sure to keep up with the story on Royal Road!');

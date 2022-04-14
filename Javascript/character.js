@@ -17,6 +17,10 @@ const character = {
             skills: {
                 qiConversion: 1 // TODO: MORE SKILLS
             },
+            spiritReceptor: {
+                t0: 0,
+                t1: 0
+            },
             quest: {
             },
             thresholds: {
@@ -67,12 +71,6 @@ const character = {
 
         //Make sure to start up the rates object, or you'd never get any Spirit Slag in the first place!
         rates.init();
-
-        // Make it so the display values are updated to be correct!
-        game.updateInventoryCounts();
-        game.onLoadInventoryRows();
-        game.updateCharacterStatDisplays();
-        game.updateCharacterSkillDisplays();
     },
 
     // Exports the character.sheet object for future loading!
