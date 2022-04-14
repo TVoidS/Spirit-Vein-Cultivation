@@ -47,6 +47,9 @@ const game = {
         // Connect the Event Log
         game.eventLog = document.getElementById("eventLog");
 
+        // Update the regen rate!
+        rates.calcQiRegen();
+        
         // Make it so the display values are updated to be correct!
         game.updateInventoryCounts();
         game.onLoadInventoryRows();
@@ -125,7 +128,7 @@ const game = {
         game.purityD.innerHTML = "[Qi Purity] - Tier " + ((character.sheet.stats.purity-rem)/10) + ", Grade " + rem;
         game.purityCost.innerHTML = upgrades.stats.purity.cost(character.sheet.stats.purity);
 
-        game.regenD.innerHTML = "[Qi Recovery Rate] - " + character.sheet.stats.regen + "/10min";
+        game.regenD.innerHTML = "[Qi Recovery Rate] - " + rates.regen + "/12s";
         game.regenCost.innerHTML = upgrades.stats.regen.cost(character.sheet.stats.regen);
     },
 
@@ -253,9 +256,9 @@ const game = {
         if (game.regen_prog >= rates.time.regen) {
             // If we are full up!
             // And aren't full of Qi...
-            if (character.sheet.stats.currQi + character.sheet.stats.regen <= character.sheet.stats.qiCap){
+            if (character.sheet.stats.currQi + rates.regen <= character.sheet.stats.qiCap){
                 // Increase our Qi by the amount we regen!
-                character.sheet.stats.currQi += character.sheet.stats.regen;
+                character.sheet.stats.currQi += rates.regen;
                 game.updateCharacterStatDisplays();
             } else if (character.sheet.stats.currQi < character.sheet.stats.qiCap) {
                 // if we aren't full, but only by a little, set us to cap!
@@ -285,6 +288,9 @@ const game = {
                 // Update the gain rates for the resources!
                 rates.calculateAllReturns();
                 rates.calculateTimes();
+            }
+            if(target == 'regen') {
+                rates.calcQiRegen();
             }
 
             // Render the changes!

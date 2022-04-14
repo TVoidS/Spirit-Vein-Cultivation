@@ -8,6 +8,9 @@ const rates = {
 
         // This is for the time it takes each of the resources to generate!
         rates.calculateTimes();
+
+        // Calculate the Qi Regen!
+        rates.regen = 1;
     },
 
     // Calculates the return value that would be generated for a given mat_tier.
@@ -81,6 +84,29 @@ const rates = {
             // Not enough purity! Immediately take the most time possible!
             return 2*game.baseTime*game.secondConvert;
         }
+    },
+
+    // Runs whenever we need to update the Qi Regen, Needed cause now we have % stuff!
+    calcQiRegen: function() {
+        // We need this for all the tiers there are!
+        let keys = Object.keys(spiritReceptor.tiers);
+
+        // Current multiplier
+        let multi = 1;
+        for (let i = 0; i < keys.length; i++) {
+            if(character.sheet.spiritReceptor[keys[i]] == spiritReceptor.tiers[keys[i]].levels) {
+                // If we are at max level, then we just add on the total, and continue with the next tier!
+                multi += spiritReceptor.tiers[keys[i]].total_bonus;
+            } else {
+                // We aren't at max level, calculate the bonus from how many levels we have and add it, then break from the loop (not needed)
+                if(character.sheet.spiritReceptor[keys[i]] > 0){
+                    multi += (spiritReceptor.tiers[keys[i]].bonus_per_lvl * character.sheet.spiritReceptor[keys[i]]);
+                }
+            }
+        }
+        rates.regen = multi * character.sheet.stats.regen;
+        // Render the change!
+        game.updateCharacterStatDisplays();
     },
 
     // Conversion rates from Mass to System Points for each material tier.

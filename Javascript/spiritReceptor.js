@@ -101,6 +101,7 @@ const spiritReceptor = {
             spiritReceptor.updateD();
             game.updateInventoryCounts();
             // Update the rates for regen!
+            rates.calcQiRegen();
         }
     },
     tiers: {
@@ -118,7 +119,7 @@ const spiritReceptor = {
             levels: 5,
             name: "Receptor Foundation",
             desc: "Once a Spirit Receptor has been conceptualized, one must now transform the concept into something more corporeal, laying its foundations into reality. Only when a spirit vein has achieved the peak of this level would they be considered to have actual Spirit Receptors. Once this upgrade is at its maximum level, the user's base Qi Recovery Rate shall be boosted by another 10%, boosting it by a total of 20%.",
-            bonus_per_level: .02,
+            bonus_per_lvl: .02,
             total_bonus: .1,
             tier: "Tier 1"
         }
