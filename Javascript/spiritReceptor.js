@@ -36,8 +36,6 @@ const spiritReceptor = {
     // Handles the addition of new Quests to the Quest Display!
     updateD: function() {
 
-        // TODO: EVERYTHING!!!!!
-
         // Just re-display everything (a receptor status might have changed?)
         const elements = document.getElementsByClassName("sRTier");
         while(elements.length > 0) {
@@ -56,11 +54,18 @@ const spiritReceptor = {
                 
                 // Check if the previous tier has been completed!
                 if (spiritReceptor.tiers[keys[i-1]].levels == character.sheet.spiritReceptor[keys[i-1]]) {
-                    // They've maxed it, continue as normal!
-                    temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (" + character.sheet.spiritReceptor[keys[i]] + "/" + spiritReceptor.tiers[keys[i]].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+keys[i]+"')\"></div>" + spiritReceptor.tiers[keys[i]].cost + " System Points</td></tr>";
+                    // They've maxed it, check if we've been maxxed too!
+                    if(spiritReceptor.tiers[keys[i]].levels == character.sheet.spiritReceptor[keys[i]]) {
+                        // We've maxxed! Change to maxxed display!
+                        temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (" + character.sheet.spiritReceptor[keys[i]] + "/" + spiritReceptor.tiers[keys[i]].levels + ")</td><td> Max Level </td></tr>";
+                    } else {
+                        // Not maxxed, normal display!
+                        temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + keys[i] + "','spiritReceptor')\"> [" + spiritReceptor.tiers[keys[i]].tier + "--" + spiritReceptor.tiers[keys[i]].name + "] (" + character.sheet.spiritReceptor[keys[i]] + "/" + spiritReceptor.tiers[keys[i]].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+keys[i]+"')\"></div>" + spiritReceptor.tiers[keys[i]].cost + " System Points</td></tr>";
+                    }
                 } else {
                     // They aren't maxxed in the previous level! Show mostly question marks!
                     temp += "<tr class=\"sRModule sRTier\"><td> [" + spiritReceptor.tiers[keys[i]].tier + "--????????????????] (??/??)</td><td>?? System Points</td></tr>";
+                    break; // Don't display any more tiers!
                 }
             } else {
                 // Default entry, only check for level!, it's tier 0 after all
@@ -73,19 +78,8 @@ const spiritReceptor = {
         }
 
         game.sRDisplay.insertAdjacentHTML("afterend", temp);
-    },
-    // Creates the layout for initial display (TESTING) Unneccessary once I get the UpdateD function to work properly.
-    createD: function() {
-        // Default of Empty String
-        let temp = "";
-
-        // BUILD HTML
-        Object.keys(spiritReceptor.tiers).forEach(tier => {
-            // Each tier gets a row added to Temp
-            temp += "<tr class=\"sRModule sRTier\"><td onclick=\"game.inspect('" + tier + "','spiritReceptor')\"> [" + spiritReceptor.tiers[tier].tier + "--" + spiritReceptor.tiers[tier].name + "] (" + character.sheet.spiritReceptor[tier] + "/" + spiritReceptor.tiers[tier].levels + ")</td><td><div class=\"sys-upgrade-btn\" onclick=\"spiritReceptor.upgrade('"+tier+"')\"></div>" + spiritReceptor.tiers[tier].cost + " System Points</td></tr>";
-        });
-
-        game.sRDisplay.insertAdjacentHTML("afterend", temp);
+        spiritReceptor.toggleD(); // DIRTY HACK OF A FIX
+        spiritReceptor.toggleD();
     },
     // Runs on the initial unlock of the system!
     unlock: function() {
@@ -96,8 +90,17 @@ const spiritReceptor = {
     },
     // Upgrade the Spirit Receptor Module!
     upgrade: function(target) {
+        // Check if we have enough
         if(character.sheet.inventory.sp >= spiritReceptor.tiers[target].cost) {
-
+            // If we do
+            // Spend the points
+            character.sheet.inventory.sp -= spiritReceptor.tiers[target].cost;
+            // Up the level for the target
+            character.sheet.spiritReceptor[target]++;
+            //Trigger an update for the SP display and the SR display
+            spiritReceptor.updateD();
+            game.updateInventoryCounts();
+            // Update the rates for regen!
         }
     },
     tiers: {
